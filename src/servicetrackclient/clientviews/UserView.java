@@ -4,6 +4,7 @@ import java.io.File;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
@@ -18,6 +19,8 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
@@ -42,9 +45,9 @@ public class UserView extends AnchorPane implements BaseView{
 	private Menu logout;
 	private MenuItem gettingStarted;
 	private MenuItem profile;
-	private Group searchGroup;
+	private GridPane mainPane;
 	private Group menuGroup;
-	private StackPane mainScreen;
+	private BorderPane mainScreen;
 	private Image logo;
 	private ImageView logoView;
 	private Screen primaryScreen;
@@ -65,12 +68,11 @@ public class UserView extends AnchorPane implements BaseView{
 		updateClientInfoButton = new Button("Update Client Info");
 		addServiceButton = new Button("Add Service To Client");
 		exportAllDataButton = new Button("Generate Report");
-		mainScreen = new StackPane();
+		mainScreen = new BorderPane();
 		searchPane = new HBox(10);
 		optionPane = new HBox(10);
 		menuPane = new HBox();
 		logoViewPane = new HBox();
-		searchGroup = new Group();
 		menuGroup = new Group();
 		mainMenu = new MenuBar();
 		settings = new Menu("Settings");
@@ -81,6 +83,7 @@ public class UserView extends AnchorPane implements BaseView{
 		logo = new Image("file:///" + new File("C:\\ServiceTracking\\Client\\images\\good_neighbor.png").getAbsolutePath().replace("\\", "/"));
 		logoView = new ImageView();
 		primaryScreen = Screen.getPrimary();
+		mainPane = new GridPane();
 		
 		logoView.setImage(logo);
 		logoView.setFitWidth(250);
@@ -100,6 +103,7 @@ public class UserView extends AnchorPane implements BaseView{
 		mainMenu.getMenus().addAll(settings,help,logout);
 		menuPane.getChildren().addAll(mainMenu);
 		HBox.setHgrow(mainMenu, Priority.ALWAYS);
+		menuGroup.getChildren().addAll( logoViewPane, menuPane);
 		
 		
 		
@@ -112,19 +116,27 @@ public class UserView extends AnchorPane implements BaseView{
 		HBox.setHgrow(searchBar, Priority.ALWAYS);
 		
 		optionPane.getChildren().addAll(addNewClientButton, updateClientInfoButton, viewInfoButton, addServiceButton, exportAllDataButton);
-		optionPane.setPadding(new Insets(80,50,50,50));
 		optionPane.setAlignment(Pos.CENTER);
+		
+		
 		HBox.setHgrow(addNewClientButton, Priority.ALWAYS);
 		HBox.setHgrow(updateClientInfoButton, Priority.ALWAYS);
 		HBox.setHgrow(viewInfoButton, Priority.ALWAYS);
 		HBox.setHgrow(addServiceButton, Priority.ALWAYS);
+		
 		HBox.setHgrow(exportAllDataButton, Priority.ALWAYS);
 		
-		searchGroup.getChildren().addAll(searchPane, optionPane);
-		menuGroup.getChildren().addAll( logoViewPane, menuPane);
-		mainScreen.getChildren().addAll(menuGroup, searchGroup);
-		StackPane.setAlignment(searchGroup, Pos.CENTER);
-		StackPane.setAlignment(menuGroup, Pos.TOP_LEFT);
+		//Initialize gridpane
+		mainPane.add(searchPane, 0, 0);
+		mainPane.add(optionPane, 0, 1);
+		mainPane.setVgap(10.0);
+		GridPane.setHalignment(searchPane, HPos.CENTER);
+		GridPane.setHalignment(optionPane, HPos.CENTER);
+		
+		mainScreen.setTop(menuGroup);
+		mainScreen.setCenter(mainPane);
+		BorderPane.setAlignment(menuGroup, Pos.CENTER);
+		BorderPane.setAlignment(mainPane, Pos.CENTER);
 		
 		
 		
@@ -139,10 +151,6 @@ public class UserView extends AnchorPane implements BaseView{
 		AnchorPane.setTopAnchor(mainScreen, 0.0);
 		AnchorPane.setRightAnchor(mainScreen, 0.0);
 		AnchorPane.setLeftAnchor(mainScreen, 0.0);
-		
-		
-		
-		
 		
 		
 		sc = new Scene(this,primaryScreen.getVisualBounds().getWidth(),primaryScreen.getVisualBounds().getHeight());
