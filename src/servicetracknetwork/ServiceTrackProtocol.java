@@ -11,11 +11,15 @@ import java.util.HashMap;
 
 import servicetrackdata.Person;
 import servicetrackdata.Service;
+import servicetrackdata.User;
 
 /**
+ * 
+ * This is the protocol for sending data over the newtwork.
  *
  * @author juand
  */
+@SuppressWarnings("serial")
 public class ServiceTrackProtocol implements Serializable {
     
     private String actionCode;
@@ -24,6 +28,7 @@ public class ServiceTrackProtocol implements Serializable {
     private String message;
     private HashMap<Integer,Service> services;
     private ArrayList<Person> persons;
+    private User loggedInUser;
     
     public ServiceTrackProtocol(){
         actionCode = null;
@@ -70,12 +75,12 @@ public class ServiceTrackProtocol implements Serializable {
         this.actionCode = actionCode;
     }
 
-    public Person getUser() {
+    public Person getPerson() {
         return user;
     }
 
-    public void setUser(Person user) {
-        this.user = user;
+    public void setPerson(Person person) {
+        this.user = person;
     }
 
     public Service getService() {
@@ -85,7 +90,12 @@ public class ServiceTrackProtocol implements Serializable {
     public void setService(Service service) {
         this.service = service;
     }
-
+    public void setLoggedInUser(User user) {
+    	this.loggedInUser = user;
+    }
+    public User getLoggedInUser() {
+    	return loggedInUser;
+    }
     public String getMessage() {
         return message;
     }
