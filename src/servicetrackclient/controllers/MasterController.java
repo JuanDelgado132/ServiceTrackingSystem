@@ -7,6 +7,7 @@ import java.io.File;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
+import servicetrackclient.clientviews.CreateUserView;
 import servicetrackclient.clientviews.LogInView;
 import servicetrackclient.models.LogInModel;
 /**
@@ -23,6 +24,8 @@ public final class MasterController {
 	private LogInController logIn;
 	private AdminController admin;
 	private UserController user;
+	private CreateUserController createUser;
+	private CreateClientController createClient;
 	
 	//This will be the initial stage.
 	private static Stage primaryStage;
@@ -37,6 +40,9 @@ public final class MasterController {
 		logIn = new LogInController(new LogInModel(), new LogInView());
 		admin = new AdminController();
 		user = new UserController();
+		createUser = new CreateUserController();
+		createClient = new CreateClientController();
+		secondaryStage = new Stage();
 	}
 	
 	public static MasterController getMaster() {
@@ -70,6 +76,19 @@ public final class MasterController {
 		primaryStage.getIcons().add(new Image("file:///" + new File("C:\\ServiceTracking\\Client\\images\\good_neighbor.png").getAbsolutePath().replace("\\", "/")));
 		primaryStage.show();
 	}
+	public void showCreateUser() {
+		secondaryStage.setScene(createUser.getViewScene());
+		secondaryStage.setTitle("Good Neighbor");
+		secondaryStage.getIcons().add(new Image("file:///" + new File("C:\\ServiceTracking\\Client\\images\\good_neighbor.png").getAbsolutePath().replace("\\", "/")));
+		secondaryStage.show();
+	}
+	private void showCreateClient() {
+		secondaryStage.setScene(createClient.getViewScene());
+		secondaryStage.setTitle("Good Neighbor");
+		secondaryStage.getIcons().add(new Image("file:///" + new File("C:\\ServiceTracking\\Client\\images\\good_neighbor.png").getAbsolutePath().replace("\\", "/")));
+		secondaryStage.show();
+		
+	}
 	/**
 	 * This will setup all of our views, so that they can be ready to show once called.
 	 * @author juand
@@ -78,6 +97,8 @@ public final class MasterController {
 		logIn.setupView();
 		admin.setupView();
 		user.setupView();
+		createUser.setupView();
+		createClient.setupView();
 	}
 	/*
 	 * create the main menu view.
@@ -105,6 +126,17 @@ public final class MasterController {
 			primaryStage.close();
 			startLogIn();
 			break;
+		case "C":
+		case "c":
+			secondaryStage.close();
+			break;
+		case "NU":
+		case"nu":
+			showCreateUser();
+			break;
+		case "NC":
+			showCreateClient();
+			
 		}
 		
 	}
