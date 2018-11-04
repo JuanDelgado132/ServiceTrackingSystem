@@ -29,6 +29,9 @@ public class ServiceTrackProtocol implements Serializable {
     private HashMap<Integer,Service> services;
     private ArrayList<Person> persons;
     private User loggedInUser;
+    private byte[] fileBytes;
+    private String fileExtension;
+    private int success;
     
     public ServiceTrackProtocol(){
         actionCode = null;
@@ -115,8 +118,25 @@ public class ServiceTrackProtocol implements Serializable {
 	public void setPersons(ArrayList<Person> persons) {
 		this.persons = persons;
 	}
-    
-    
+	public int getErrorFlag() {
+		return success;
+	}
+	public void setErrorFlag(int success) {
+		this.success = success;
+	}
+	public byte[] getFileBytes() {
+		return fileBytes;
+	}
+	public void setFileBytes(byte[] fileBytes) {
+		this.fileBytes = fileBytes;
+	}
+	public String getFileExtension() {
+		return fileExtension;
+	}
+	public void setFileExtension(String fileExtension) {
+		this.fileExtension = fileExtension;
+	}
+	
     
     
 }

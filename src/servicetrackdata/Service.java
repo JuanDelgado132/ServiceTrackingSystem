@@ -8,30 +8,32 @@ package servicetrackdata;
 import java.io.Serializable;
 
 /**
- *
+ * Will serve as the representation for the services that the organization provides.
  * @author juand
- * 
- * Service will inherit Serializable so it can be transfered to the server later.
  */
+@SuppressWarnings("serial")
 public class Service implements Serializable{
     
     private int serviceID;
     private String serviceName;
     private String serviceDescription;
-    private String restriction;
+    private String days;
+    private String time;
     
     public Service(){
         serviceID = 0;
         serviceName = " ";
         serviceDescription = " ";
-        restriction = " ";
+        days = " ";
+        time = " ";
     }
 
-    public Service(int serviceID, String serviceName, String serviceDescription, String restriction) {
+    public Service(int serviceID, String serviceName, String serviceDescription, String days, String time) {
         this.serviceID = serviceID;
         this.serviceName = serviceName;
         this.serviceDescription = serviceDescription;
-        this.restriction = restriction;
+        this.days = days;
+        this.time = time;
     }
     
     public int getServiceID() {
@@ -57,18 +59,31 @@ public class Service implements Serializable{
     public void setServiceDescription(String serviceDescription) {
         this.serviceDescription = serviceDescription;
     }
+    
 
-    public String getRestriction() {
-        return restriction;
-    }
+    public String getDays() {
+		return days;
+	}
 
-    public void setRestriction(String restriction) {
-        this.restriction = restriction;
-    }
+	public void setDays(String days) {
+		this.days = days;
+	}
 
-    @Override
+	public String getTime() {
+		return time;
+	}
+
+	public void setTime(String time) {
+		this.time = time;
+	}
+
+	@Override
     public String toString() {
-        return "serviceID=" + serviceID + ", serviceName=" + serviceName + ", serviceDescription=" + serviceDescription + ", restriction=" + restriction;
+    	return "ID: " + serviceID +
+    			"\nName: " + serviceName +
+    			"\nDescription: " + serviceDescription +
+    			"\nDays: " + days + 
+    			"\nTime: " + time;
     }
     
     

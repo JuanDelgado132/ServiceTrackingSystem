@@ -1,7 +1,6 @@
 package servicetrackclient.clientviews;
 
 import java.io.File;
-
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.HPos;
@@ -11,12 +10,15 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 
 public class CreateClientView extends AnchorPane implements BaseView{
@@ -29,14 +31,18 @@ public class CreateClientView extends AnchorPane implements BaseView{
 	
 	private TextField firstNameField;
 	private TextField lastNameField;
-	private TextField genderField;
 	private TextField birthDayField;
 	private TextArea commentField;
+	
+	private ToggleGroup genderToggle;
+	private RadioButton male;
+	private RadioButton female;
 	
     private Alert dialog;
 	
 	private GridPane enterClientInfoPane;
 	private BorderPane mainScreen;
+	private HBox genderPane;
 	
 	private Button addClientButton;
 	
@@ -52,11 +58,22 @@ public class CreateClientView extends AnchorPane implements BaseView{
 		
 		firstNameField = new TextField();
 		lastNameField = new TextField();
-		genderField = new TextField();
+		
 		birthDayField = new TextField();
 		commentField = new TextArea();
 		
+		
 		addClientButton = new Button("Create Client");
+		
+		genderToggle = new ToggleGroup();
+		male = new RadioButton("Male");
+		female = new RadioButton("Female");
+		male.setToggleGroup(genderToggle);
+		female.setToggleGroup(genderToggle);
+		
+		genderPane = new HBox(10);
+		genderPane.getChildren().addAll(male, female);
+		
 		
 		enterClientInfoPane = new GridPane();
 		enterClientInfoPane.setPadding(new Insets(10.0, 10.0, 10.0, 10.0));
@@ -70,18 +87,19 @@ public class CreateClientView extends AnchorPane implements BaseView{
 		
 		enterClientInfoPane.add(firstNameField, 1, 0);
 		enterClientInfoPane.add(lastNameField, 1, 1);
-		enterClientInfoPane.add(genderField, 1, 2);
+		enterClientInfoPane.add(genderPane, 1, 2);
 		enterClientInfoPane.add(birthDayField, 1, 3);
 		enterClientInfoPane.add(commentField, 1, 5);
 		enterClientInfoPane.add(addClientButton, 1, 6);
 		
 		GridPane.setHgrow(firstNameField, Priority.ALWAYS);
 		GridPane.setHgrow(lastNameField, Priority.ALWAYS);
-		GridPane.setHgrow(genderField, Priority.ALWAYS);
+		//GridPane.setHgrow(genderField, Priority.ALWAYS);
 		GridPane.setHgrow(birthDayField, Priority.ALWAYS);
 		GridPane.setHalignment(comments, HPos.CENTER);
 		GridPane.setHalignment(commentField, HPos.LEFT);
 		GridPane.setHalignment(addClientButton, HPos.RIGHT);
+		GridPane.setHalignment(female, HPos.LEFT);
 		
 		mainScreen = new BorderPane();
 		mainScreen.setPadding(new Insets(10,10,10,10));
@@ -97,8 +115,7 @@ public class CreateClientView extends AnchorPane implements BaseView{
 		AnchorPane.setRightAnchor(mainScreen, 0.0);
 		AnchorPane.setLeftAnchor(mainScreen, 0.0);
 		
-		scene = new Scene(this, 700, 400);
-		
+		scene = new Scene(this, 700, 420);
 		scene.getStylesheets().add("file:///" + new File("C:\\ServiceTracking\\Client\\css\\bootstrap3.css").getAbsolutePath().replace("\\", "/"));
 		
 	}
@@ -116,7 +133,12 @@ public class CreateClientView extends AnchorPane implements BaseView{
 	}
 	
 	public String getGender() {
-		return genderField.getText();
+		if(male.isSelected())
+			return male.getText();
+		else if (female.isSelected())
+			return female.getText();
+		
+		return "";
 	}
 	public String getComments() {
 		return commentField.getText();
@@ -134,7 +156,8 @@ public class CreateClientView extends AnchorPane implements BaseView{
 		// TODO Auto-generated method stub
 		firstNameField.clear();
 		lastNameField.clear();
-		genderField.clear();
+		male.setSelected(false);
+		female.setSelected(false);
 		birthDayField.clear();
 		commentField.clear();
 		

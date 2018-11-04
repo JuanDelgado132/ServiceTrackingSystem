@@ -22,7 +22,11 @@ public final class DirectoryStructure {
     private static final String CONFIG_FILE = "config.properties";
     private static final String LOG = "log.txt";
     private static final String CLIENT_DIR = "Client\\";
+    private static final String LOGGED_IN_USER_FILE = "LoggedInUser.data";
     private static final String USER_FILE = "user.data";
+    private static final String CLIENT_FILE = "client.data";
+    private static final String SERVICE_FILE = "service.data";
+    //private static final 
     private DirectoryStructure(){
         
     }
@@ -70,7 +74,17 @@ public final class DirectoryStructure {
         serverConfig = new File(MAIN_DIR + SETTINGS_DIR + CONFIG_FILE);
         serverConfig.createNewFile();
     }
+    public static void createLoggedInFile() throws IOException {
+    	File userFile = new File(MAIN_DIR + CLIENT_DIR);
+    	userFile.mkdirs();
+    	userFile = new File(MAIN_DIR + CLIENT_DIR + LOGGED_IN_USER_FILE);
+    	userFile.createNewFile();
+    }
     
+    public static void deleteLoggedInFile() {
+    	File userFile = new File(MAIN_DIR + CLIENT_DIR + LOGGED_IN_USER_FILE);
+    	userFile.delete();
+    }
     public static void createUserFile() throws IOException {
     	File userFile = new File(MAIN_DIR + CLIENT_DIR);
     	userFile.mkdirs();
@@ -82,6 +96,30 @@ public final class DirectoryStructure {
     	File userFile = new File(MAIN_DIR + CLIENT_DIR + USER_FILE);
     	userFile.delete();
     }
+    public static void createClientFile() throws IOException {
+    	File userFile = new File(MAIN_DIR + CLIENT_DIR);
+    	userFile.mkdirs();
+    	userFile = new File(MAIN_DIR + CLIENT_DIR + CLIENT_FILE);
+    	userFile.createNewFile();
+    }
+    
+    public static void deleteClientFile() {
+    	File userFile = new File(MAIN_DIR + CLIENT_DIR + CLIENT_FILE);
+    	userFile.delete();
+    }
+    public static void createServiceFile() throws IOException {
+    	File userFile = new File(MAIN_DIR + CLIENT_DIR);
+    	userFile.mkdirs();
+    	userFile = new File(MAIN_DIR + CLIENT_DIR + SERVICE_FILE);
+    	userFile.createNewFile();
+    }
+    
+    public static void deleteServiceFile() {
+    	File userFile = new File(MAIN_DIR + CLIENT_DIR + SERVICE_FILE);
+    	userFile.delete();
+    }
+
+
     
     public static String getMainDir(){
         return MAIN_DIR;
@@ -93,8 +131,17 @@ public final class DirectoryStructure {
     public static String getLogFile() {
         return MAIN_DIR + LOG_FILE_DIR + LOG;
     }
+    public static String getLoggedInFile(){
+    	return MAIN_DIR + CLIENT_DIR + LOGGED_IN_USER_FILE;
+    }
     public static String getUserFile() {
     	return MAIN_DIR + CLIENT_DIR + USER_FILE;
+    }
+    public static String getClientFile(){
+    	return MAIN_DIR + CLIENT_DIR + CLIENT_FILE;
+    }
+    public static String getServiceFile() {
+    	return MAIN_DIR + CLIENT_DIR + SERVICE_FILE;
     }
     
 }

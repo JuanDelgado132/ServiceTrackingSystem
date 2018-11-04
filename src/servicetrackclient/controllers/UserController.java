@@ -1,9 +1,6 @@
 package servicetrackclient.controllers;
 
 import javafx.scene.Scene;
-import javafx.scene.input.MouseEvent;
-import javafx.event.EventHandler;
-import javafx.event.ActionEvent;
 import servicetrackclient.clientviews.UserView;
 import servicetrackclient.models.UserModel;
 

@@ -1,29 +1,32 @@
 package servicetrackserver;
+import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
-import java.sql.SQLException;
-import java.util.Properties;
 
 import database.DBOperations;
-import servicetrackdata.User;
 import servicetrackdirectories.*;
 
 public class ServerMain {
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		ServiceTrackingServer server = new ServiceTrackingServer();
-		if(!DirectoryStructure.checkForConfigFile()) {
+		/*if(!DirectoryStructure.checkForConfigFile()) {
 			server.performFirstTimeSetup();
 			server.startServer();
 		}
 		else {
 			server.startServer();
 		}
+		*/
+		DBOperations db = DBOperations.getDBSingleton();
+		byte[] r = db.exportData();
 		
+		var testStream = new FileOutputStream(new File("build_from_byte.csv"));
+		var bufStream = new BufferedOutputStream(testStream);
+		
+		bufStream.write(r,0,r.length);
+		bufStream.close();
 		/*DBOperations db = DBOperations.getDBSingleton();
 		
 		//User user = db.fetchLogInInfo("jdelgado5443@gmail.com", "Skyl@r5106");

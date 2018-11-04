@@ -13,6 +13,7 @@ import java.io.Serializable;
  * 
  * class is abstract to prevent any instantiation of the class.
  */
+@SuppressWarnings("serial")
 public abstract class Person implements Serializable {
     private String firstName;
     private String lastName;
@@ -22,7 +23,7 @@ public abstract class Person implements Serializable {
     public Person(){
         firstName = " ";
         lastName = " ";
-        id = 0;
+        id = 0; 
     }
     public Person(String firstName, String lastName, int id){
         this.firstName = firstName;

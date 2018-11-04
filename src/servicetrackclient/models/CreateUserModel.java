@@ -3,15 +3,15 @@ package servicetrackclient.models;
 import java.io.IOException;
 import java.net.UnknownHostException;
 
-import servicetrackclient.ServiceTrackClient;
+import servicetrackclient.ClientNetworkFunctions;
 import servicetrackdata.User;
 
 public class CreateUserModel {
 	
-	private ServiceTrackClient client;
+	private ClientNetworkFunctions client;
 	
 	public CreateUserModel() {
-		client = new ServiceTrackClient();
+		client = new ClientNetworkFunctions();
 	}
 	
 	public int createUser(String firstName, String lastName, String email, String role, String address, String phoneNumber, String password) throws UnknownHostException, IOException, ClassNotFoundException {

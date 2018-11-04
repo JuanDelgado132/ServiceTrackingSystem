@@ -1,11 +1,8 @@
 package servicetrackclient.controllers;
 import java.net.ConnectException;
 
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
+
 import javafx.scene.Scene;
-import javafx.stage.Stage;
-import servicetrackclient.ServiceTrackClient;
 import servicetrackclient.clientviews.LogInView;
 import servicetrackclient.models.LogInModel;
 import servicetrackdata.User;
@@ -34,32 +31,28 @@ public class LogInController implements BaseController{
 			String pass = logInScreen.getPassword();
 			String message = null;
 			if(email.equalsIgnoreCase("") || pass.equalsIgnoreCase("")) {
-				logInScreen.error("The email field or password field may not be blank");
+				logInScreen.showDialog("The email field or password field may not be blank");
 				return;
 			}
 			try {
 				if(logIn.logIn(email, pass)) {
 					logIn.writeUser();
 					User user = logIn.getUser();
-					System.out.println(user.toString());
 					logInScreen.clearView();
-					if(user.getRole().equalsIgnoreCase("admin"))
+					if(user.getRole().equalsIgnoreCase("Administrator"))
 						MasterController.getMaster().fireEvent("A");
 					else
 						MasterController.getMaster().fireEvent("U");
-					
-					
-					
 				}
 				else {
 					if(logIn.getUser() == null)
 						message = "Username or password is incorrect. Please try and log in again.";
-					logInScreen.error(message);
+					logInScreen.showDialog(message);
 					logInScreen.clearView();
 					
 				}
-			} catch (ConnectException e) {
-				logInScreen.error("The connection to the server could no be established.");
+			} catch (ConnectException ex) {
+				logInScreen.showDialog("The connection to the server could no be established.");
 			}
 		});
 	}

@@ -7,41 +7,42 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
-import javafx.scene.layout.StackPane;
 import javafx.stage.Screen;
 import javafx.event.EventHandler;
 import javafx.event.ActionEvent;
-import javafx.event.Event;
 
 public class AdminView extends AnchorPane implements BaseView{
 	
 	private Label searchLabel;
 	private TextField searchBar;
 	private Button viewInfoButton;
-	private Button updateClientInfoButton;
-	private Button updateUserInfoButton;
-	private Button addServiceButton;
+	private Button viewUserButton;
+	private Button registerServiceButton;
 	private Button addNewServiceButton;
 	private Button exportAllDataButton;
 	private Button addNewUserButton;
 	private Button addNewClientButton;
+	private Button viewServiceButton;
+	private Button deregisterServiceButton;
 	private HBox searchPane;
-	private HBox optionPane;
+	private FlowPane optionPane;
 	private HBox menuPane;
 	private HBox logoViewPane;
 	private Scene sc;
@@ -59,6 +60,8 @@ public class AdminView extends AnchorPane implements BaseView{
 	private Label logOutLabel;
 	private GridPane mainPane;
 	
+	private Alert dialog;
+	
 	public AdminView() {
 		
 	}
@@ -70,16 +73,19 @@ public class AdminView extends AnchorPane implements BaseView{
 		logOutLabel = new Label("Logout");
 		searchBar = new TextField();
 		addNewUserButton = new Button("Add New User");
-		updateUserInfoButton = new Button("Update User Info");
+		viewUserButton = new Button("View User");
 		addNewClientButton = new Button("Add New Client");
 		viewInfoButton = new Button("View Client Info");
-		updateClientInfoButton = new Button("Update Client Info");
-		addServiceButton = new Button("Add Service To Client");
-		addNewServiceButton = new Button("Enter New Service");
+		registerServiceButton = new Button("Register Service To Client");
+		deregisterServiceButton = new Button("Remove Service From Client");
+		viewServiceButton = new Button("View Service");
+		addNewServiceButton = new Button("Create New Service");
 		exportAllDataButton = new Button("Generate Report");
 		mainScreen = new BorderPane();
 		searchPane = new HBox(10);
-		optionPane = new HBox(10);
+		optionPane = new FlowPane();
+		optionPane.setHgap(10.0);
+		optionPane.setVgap(10.0);
 		menuPane = new HBox();
 		logoViewPane = new HBox();
 		menuGroup = new Group();
@@ -125,15 +131,14 @@ public class AdminView extends AnchorPane implements BaseView{
 		searchPane.setPadding(new Insets(20,230,0,200));
 		HBox.setHgrow(searchBar, Priority.ALWAYS);
 		
-		optionPane.getChildren().addAll(addNewUserButton, updateUserInfoButton,  addNewClientButton, updateClientInfoButton, viewInfoButton, addServiceButton, addNewServiceButton, exportAllDataButton);
+		optionPane.getChildren().addAll(addNewUserButton, viewUserButton,  addNewClientButton, viewInfoButton, addNewServiceButton, viewServiceButton, registerServiceButton, exportAllDataButton);
 		optionPane.setAlignment(Pos.CENTER);
 		
 		HBox.setHgrow(addNewUserButton, Priority.ALWAYS);
-		HBox.setHgrow(updateUserInfoButton, Priority.ALWAYS);
+		HBox.setHgrow(viewUserButton, Priority.ALWAYS);
 		HBox.setHgrow(addNewClientButton, Priority.ALWAYS);
-		HBox.setHgrow(updateClientInfoButton, Priority.ALWAYS);
 		HBox.setHgrow(viewInfoButton, Priority.ALWAYS);
-		HBox.setHgrow(addServiceButton, Priority.ALWAYS);
+		HBox.setHgrow(registerServiceButton, Priority.ALWAYS);
 		HBox.setHgrow(addNewServiceButton, Priority.ALWAYS);
 		HBox.setHgrow(exportAllDataButton, Priority.ALWAYS);
 		
@@ -167,9 +172,8 @@ public class AdminView extends AnchorPane implements BaseView{
 		sc = new Scene(this,primaryScreen.getVisualBounds().getWidth(),primaryScreen.getVisualBounds().getHeight());
 		
 		
-		
+		 
 		sc.getStylesheets().add("file:///" + new File("C:\\ServiceTracking\\Client\\css\\bootstrap3.css").getAbsolutePath().replace("\\", "/"));
-		//sc.getStylesheets().add("file:///" + new File("C:\\ServiceTracking\\Client\\css\\main.css").getAbsolutePath().replace("\\", "/"));
 		
 		
 	}
@@ -185,14 +189,53 @@ public class AdminView extends AnchorPane implements BaseView{
 		searchBar.clear();
 		
 	}
+	public void showDialog(int code, String message) {
+		if (code == -1)
+			dialog = new Alert(AlertType.ERROR);
+		else
+			dialog = new Alert(AlertType.INFORMATION);
+		
+		dialog.setTitle("Good Neighbor Alert");
+		dialog.setContentText(message);
+		dialog.showAndWait();
+	}
+	public String getID() {
+		return searchBar.getText();
+	}
 	//TODO implement listeners.
+	
+	//Log out functionality
 	public void setLogOutListener(EventHandler<MouseEvent> logoutEvent) {
 		
 		logOutLabel.setOnMouseClicked(logoutEvent);
 	}
+	//Create a new user functionality
 	public void createUserListener(EventHandler<ActionEvent> event) {
 		addNewUserButton.setOnAction(event);
 	}
-	
+	//Update a user.
+	public void updateUserListener(EventHandler<ActionEvent> event) {
+		viewUserButton.setOnAction(event);
+	}
+	//create client functionality.
+	public void createClientListener(EventHandler<ActionEvent> event) {
+		addNewClientButton.setOnAction(event);
+	}
+	//View client
+	public void viewClientListener(EventHandler<ActionEvent> event) {
+		viewInfoButton.setOnAction(event);
+	}
+	//Create new service.
+	public void createServiceListener(EventHandler<ActionEvent> event) {
+		addNewServiceButton.setOnAction(event);
+	}
+	//view service
+	public void viewServiceListener(EventHandler<ActionEvent> event) {
+		viewServiceButton.setOnAction(event);
+	}
+	//Register service button
+	public void registerServiceListener(EventHandler<ActionEvent> event) {
+		registerServiceButton.setOnAction(event);
+	}
 
 }

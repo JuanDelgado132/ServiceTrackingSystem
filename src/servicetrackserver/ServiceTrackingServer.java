@@ -7,7 +7,6 @@ package servicetrackserver;
 
 import database.DBOperations;
 import java.io.Closeable;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -25,6 +24,7 @@ import java.net.UnknownHostException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -33,7 +33,6 @@ import java.util.logging.Logger;
 import java.util.Scanner;
 import servicetrackdata.Client;
 import servicetrackdata.Person;
-import servicetrackdata.Service;
 //import servicetrackdata.Service;
 import servicetrackdata.User;
 import servicetrackdirectories.DirectoryStructure;
@@ -79,13 +78,13 @@ public class ServiceTrackingServer {
         boolean serverSettingsLoaded = false;
         log = null;
         try {
-            log = new PrintWriter(new FileOutputStream(DirectoryStructure.getLogFile()));
+            log = new PrintWriter(new FileOutputStream(DirectoryStructure.getLogFile()), true);
         } catch (FileNotFoundException ex) {
             //If file does not exist then we catch it and create the file.
             DirectoryStructure.createLogFile();
         } finally {
             try {
-                log = new PrintWriter(new FileOutputStream(DirectoryStructure.getLogFile()));
+                log = new PrintWriter(new FileOutputStream(DirectoryStructure.getLogFile()), true);
             } catch (FileNotFoundException ex) {
 
             }
@@ -158,9 +157,6 @@ public class ServiceTrackingServer {
     	case 2:
     		DB.addNewClient(addClient());
     		break;
-    	case 3:
-    		DB.addNewService(addService());
-    		break;
     	default :
     			System.out.println("Error re-enter your choice.");
     		
@@ -218,26 +214,7 @@ public class ServiceTrackingServer {
      * Add a service.
      * @return
      */
-    private Service addService() {
-    	//clear the buffer.
-    	input.nextLine();
-    	String serviceName;
-    	int serviceID = 00000;
-    	String serviceDescription;
-    	String serviceRestriction;
-    	
-    	System.out.println("Please enter the name of your service.");
-    	serviceName = input.nextLine();
-    	
-    	System.out.println("Please enter a short description of the service.");
-    	serviceDescription = input.nextLine();
-    	do {
-    		System.out.println("Please enter any restriction. None,  Female (only female)");
-    		serviceRestriction = input.nextLine();
-    	}while(!(serviceRestriction.equalsIgnoreCase("none")) && !(serviceRestriction.equalsIgnoreCase("female")));
-    	
-    	return new Service(serviceID, serviceName, serviceDescription, serviceRestriction);
-    }
+   
     private Client addClient() {
     	//Clear the buffer.
     	input.nextLine();
@@ -295,7 +272,7 @@ public class ServiceTrackingServer {
         DirectoryStructure.createLogFile();
         
         try {
-			log = new PrintWriter(new FileOutputStream(DirectoryStructure.getLogFile()));
+			log = new PrintWriter(new FileOutputStream(DirectoryStructure.getLogFile()), true);
 		} catch (FileNotFoundException e) {
 			
 		}
@@ -443,11 +420,15 @@ public class ServiceTrackingServer {
             	log.println(ex.getMessage());
                 ex.printStackTrace(log);
                 log.println("--------------------------------------------------------------------------------------------------");
+                packet.setMessage(ex.getMessage());
+                packet.setErrorFlag(-1);
             } catch (ClassNotFoundException ex) {
             	log.println("Error");
             	log.println(ex.getMessage());
                 ex.printStackTrace(log);
                 log.println("--------------------------------------------------------------------------------------------------");
+                packet.setMessage(ex.getMessage());
+                packet.setErrorFlag(-1);
             } catch (NoSuchAlgorithmException ex) {
             	log.println("Error");
             	log.println(ex.getMessage());
@@ -455,6 +436,7 @@ public class ServiceTrackingServer {
                 log.println("--------------------------------------------------------------------------------------------------");
                 message = "Error encrypting password. Notify System Admin.";
                 packet.setMessage(message);
+                packet.setErrorFlag(-1);
 			} catch (InvalidKeySpecException ex) {
 				log.println("Error");
             	log.println(ex.getMessage());
@@ -462,13 +444,18 @@ public class ServiceTrackingServer {
                 log.println("--------------------------------------------------------------------------------------------------");
                 message = "Error encrypting password. Notify System Admin.";
                 packet.setMessage(message);
+                packet.setErrorFlag(-1);
 			} catch (SQLException ex) {
 				log.println("Error");
             	log.println(ex.getMessage());
                 ex.printStackTrace(log);
                 log.println("--------------------------------------------------------------------------------------------------");
-                message = "Error processing current query.";
-                packet.setMessage(message);
+                if(ex instanceof SQLIntegrityConstraintViolationException && packet.getPerson() instanceof User)
+                	message = "The email " + ((User)packet.getPerson()).getEmail() + " is already registered to a different user";
+                else
+                	message = "Error processing current operation.";
+                packet.setMessage(ex.getMessage());
+                packet.setErrorFlag(-1);
 			}
             finally {
             	log.flush();
@@ -500,25 +487,26 @@ public class ServiceTrackingServer {
             //get the action code.
         	String code = packet.getActionCode();
         	//This could be a client or a user
-           Person person =  packet.getUser();
+           Person person =  packet.getPerson();
             
             
             switch (code){
-                //only server specefic
+                //only server specific
                 case "NC":
                     db.addNewClient((Client) person);
                     message = "Success in adding a new client.";
                     break;
                 case "NS":
                     db.addNewService(packet.getService());
-                    message = "Success in adding a new services.";
+                    message = "The service has been createds.";
                     break;
-                case "AS":
+                case "RS":
                 	db.registerNewService((Client) person, packet.getService());
                 	message = "Success in registering a new service.";
+                	break;
                 case "NU":
                 	db.addNewUser((User) person);
-                	message = "Success in adding a new user.";
+                	message = "Success the user has been created.";
                 	break;
                 case "DC":
                 	db.deleteClient((Client) person);
@@ -530,9 +518,10 @@ public class ServiceTrackingServer {
                 	break;
                 case "DU":
                 	db.deleteUser((User) person);
-                	message = "Success in deleting the selected user.";
+                	message = "Success in deleting the selected user."; 
                 	break;
                 case "RM":
+                	//Will need to loop for this, if removing more than one service.
                 	db.removeServiceFromClient((Client) person, packet.getService());
                 	message = "success in removing the service";
                 	break;
@@ -561,17 +550,25 @@ public class ServiceTrackingServer {
                 	message = "Success in gettng all registered services.";
                 	break;
                 case "LG":
-                	packet.setUser(db.fetchLogInInfo(((User) person).getEmail(), ((User) person).getPassword()));
+                	packet.setPerson(db.fetchLogInInfo(((User) person).getEmail(), ((User) person).getPassword()));
                 	message = "Success in logging in.";
                 	break;
                 case "GU":
-                	db.getUser(((User) person).getId());
+                	packet.setPerson((Person)(db.getUser(((User) person).getId())));
                 	message = "Success in getting user.";
+                	break;
+                case "GC":
+                	packet.setPerson(db.getClient(((Client) person).getId()));
+                	message = "Success in getting client.";
+                	break;
+                case "EAD":
+                	packet.setFileBytes(db.exportAllData());
                 	break;
                 	
             }
             
             packet.setMessage(message);
+            packet.setErrorFlag(1);
         }
         
         private void closeQuietly(Closeable resource) {

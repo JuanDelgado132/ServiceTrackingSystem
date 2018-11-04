@@ -12,11 +12,14 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 
 public class CreateUserView extends AnchorPane implements BaseView{
@@ -33,16 +36,20 @@ public class CreateUserView extends AnchorPane implements BaseView{
 	private TextField firstNameField;
 	private TextField lastNameField;
 	private TextField emailField;
-	private TextField roleField;
 	private TextField addressField;
 	private TextField phoneNumberField;
 	private PasswordField passwordField;
 	private PasswordField verifyPasswordField;
 	
+	private ToggleGroup roleToggle;
+	private RadioButton admin;
+	private RadioButton staff;
+	
 	private Alert dialog;
 	
 	private GridPane enterUserInfoPane;
 	private BorderPane mainScreen;
+	private HBox rolePane;
 	
 	private Button addUserButton;
 	
@@ -67,13 +74,21 @@ public class CreateUserView extends AnchorPane implements BaseView{
 		firstNameField = new TextField();
 		lastNameField = new TextField();
 		emailField = new TextField();
-		roleField = new TextField();
 		addressField = new TextField();
 		phoneNumberField = new TextField();
 		passwordField = new PasswordField();
 		verifyPasswordField = new PasswordField();
 		
 		addUserButton = new Button("Create New User");
+		
+		roleToggle = new ToggleGroup();
+		admin = new RadioButton("Administrator");
+		staff = new RadioButton("Staff");
+		admin.setToggleGroup(roleToggle);
+		staff.setToggleGroup(roleToggle);
+		
+		rolePane = new HBox(10);
+		rolePane.getChildren().addAll(admin, staff);
 		
 
 		
@@ -84,6 +99,8 @@ public class CreateUserView extends AnchorPane implements BaseView{
 		
 		mainScreen = new BorderPane();
 		mainScreen.setPadding(new Insets(10,10,10,10));
+		
+		dialog = new Alert(AlertType.NONE);
 		
 		//Add the fields to the gridpane
 		enterUserInfoPane.add(firstName, 0, 0);
@@ -98,7 +115,7 @@ public class CreateUserView extends AnchorPane implements BaseView{
 		enterUserInfoPane.add(firstNameField, 1, 0);
 		enterUserInfoPane.add(lastNameField, 1, 1);
 		enterUserInfoPane.add(emailField, 1, 2);
-		enterUserInfoPane.add(roleField, 1, 3);
+		enterUserInfoPane.add(rolePane, 1, 3);
 		enterUserInfoPane.add(addressField, 1, 4);
 		enterUserInfoPane.add(phoneNumberField, 1, 5);
 		enterUserInfoPane.add(passwordField, 1, 6);
@@ -110,7 +127,6 @@ public class CreateUserView extends AnchorPane implements BaseView{
 		GridPane.setHgrow(firstNameField, Priority.ALWAYS);
 		GridPane.setHgrow(lastNameField, Priority.ALWAYS);
 		GridPane.setHgrow(emailField, Priority.ALWAYS);
-		GridPane.setHgrow(roleField, Priority.ALWAYS);
 		GridPane.setHgrow(addressField, Priority.ALWAYS);
 		GridPane.setHgrow(phoneNumberField, Priority.ALWAYS);
 		GridPane.setHgrow(passwordField, Priority.ALWAYS);
@@ -128,8 +144,7 @@ public class CreateUserView extends AnchorPane implements BaseView{
 		AnchorPane.setRightAnchor(mainScreen, 0.0);
 		AnchorPane.setLeftAnchor(mainScreen, 0.0);
 		
-		scene = new Scene(this, 500, 400);
-		
+		scene = new Scene(this, 500, 420);
 		scene.getStylesheets().add("file:///" + new File("C:\\ServiceTracking\\Client\\css\\bootstrap3.css").getAbsolutePath().replace("\\", "/"));
 	}
 
@@ -149,13 +164,18 @@ public class CreateUserView extends AnchorPane implements BaseView{
 		return emailField.getText();
 	}
 	public String getRole() {
-		return roleField.getText();
+		if(admin.isSelected())
+			return admin.getText();
+		else if(staff.isSelected())
+			return staff.getText();
+		
+		return "";
 	}
 	public String getAddress() {
 		return addressField.getText();
 	}
 	public String getPhoneNumber() {
-		return phoneNumber.getText();
+		return phoneNumberField.getText();
 	}
 	public String getPassword() {
 		return passwordField.getText();
@@ -170,7 +190,8 @@ public class CreateUserView extends AnchorPane implements BaseView{
 		lastNameField.clear();
 		emailField.clear();
 		addressField.clear();
-		roleField.clear();
+		admin.setSelected(false);
+		staff.setSelected(false);
 		phoneNumberField.clear();
 		passwordField.clear();
 		verifyPasswordField.clear();
@@ -181,9 +202,9 @@ public class CreateUserView extends AnchorPane implements BaseView{
 	}
 	public void showDialog(int code, String message) {
 		if (code == -1)
-			dialog = new Alert(AlertType.ERROR);
+			dialog.setAlertType(AlertType.ERROR);
 		else
-			dialog = new Alert(AlertType.INFORMATION);
+			dialog.setAlertType(AlertType.INFORMATION);
 		
 		dialog.setTitle("Good Neighbor Alert");
 		dialog.setContentText(message);

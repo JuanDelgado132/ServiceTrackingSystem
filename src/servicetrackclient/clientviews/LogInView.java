@@ -1,8 +1,6 @@
 package servicetrackclient.clientviews;
 
-import javafx.css.Style;
 import javafx.event.ActionEvent;
-
 import javafx.event.EventHandler;
 import javafx.geometry.HPos;
 import javafx.geometry.Pos;
@@ -15,12 +13,8 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-
-import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
-
 import javafx.scene.Scene;
 import java.io.File;
 
@@ -98,12 +92,9 @@ public class LogInView extends Pane implements BaseView{
 		getChildren().add(logInScreen);
 		scene =  new Scene(this, 425, 400);
 		
-		File file = new File("C:\\ServiceTracking\\Client\\css\\bootstrap3.css");
 		
-		scene.getStylesheets().add("file:///" + file.getAbsolutePath().replace("\\", "/"));
-		
+		scene.getStylesheets().add("file:///" + new File("C:\\ServiceTracking\\Client\\css\\bootstrap3.css").getAbsolutePath().replace("\\", "/"));
 		scene.getStylesheets().add("file:///" + new File("C:\\ServiceTracking\\Client\\css\\login.css").getAbsolutePath().replace("\\", "/"));
-		
 	}
 	
 	public void addLogInButtonListener(EventHandler<ActionEvent> event) {
@@ -134,7 +125,7 @@ public class LogInView extends Pane implements BaseView{
 		return passField.getText();
 	}
 	
-	public void error(String message) {
+	public void showDialog(String message) {
 		errorDialog = new Alert(AlertType.ERROR);
 		errorDialog.setTitle("Log In Error");
 		errorDialog.setContentText(message);

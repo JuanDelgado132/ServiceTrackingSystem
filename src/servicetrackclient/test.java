@@ -18,7 +18,7 @@ public class test {
 		user.setPassword("Skyl@r5106");
 		ServiceTrackProtocol p = new ServiceTrackProtocol();
 		p.setActionCode("LG");
-		p.setUser(user);
+		p.setPerson(user);
 		
 		Socket socket = new Socket("192.168.1.11", 4500);
 		var out = new ObjectOutputStream(socket.getOutputStream());
@@ -26,7 +26,7 @@ public class test {
 		out.writeObject(p);
 		p = (ServiceTrackProtocol) in.readObject();
 		System.out.println(p.getMessage());
-		System.out.println(p.getUser().toString());
+		System.out.println(p.getPerson().toString());
 	}
 	
 }

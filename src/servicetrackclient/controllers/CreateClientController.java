@@ -3,10 +3,8 @@ package servicetrackclient.controllers;
 import javafx.scene.Scene;
 import servicetrackclient.clientviews.CreateClientView;
 import servicetrackclient.models.CreateClientModel;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;  
-import java.util.Date; 
 
 public class CreateClientController implements BaseController{
 	private CreateClientModel createClientModel;
@@ -33,28 +31,36 @@ public class CreateClientController implements BaseController{
 			}
 			try {
 				//I used this to ensure a user entered a date in the correct format. This was much simpler that using a regex expression.
-				Date date =new SimpleDateFormat("yyyy-MM-dd").parse(birthDay);
+				new SimpleDateFormat("yyyy-MM-dd").parse(birthDay);
 			} catch (ParseException ex) {
 				createClientView.showDialog(-1, "Please enter a date in the following format yyyy-MM-dd.");
 				return;
 				
 			}
-			if(!gender.equalsIgnoreCase("Male") && !gender.equalsIgnoreCase("Female")) {
+			/*if(!gender.equalsIgnoreCase("Male") && !gender.equalsIgnoreCase("Female")) {
 				createClientView.showDialog(-1, "You must enter male or female.");
 				return;
-			}
+			}*/
 			
 			try {
 				result = createClientModel.createClient(firstName, lastName, gender, birthDay, comments);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				createClientView.showDialog(-1, e.getMessage());
+				return;
 			}
-			createClientView.showDialog(result, createClientModel.getMessage() + "\n" + createClientModel. printClientInfo());
-			createClientView.clearView();
-			
+			if(result == -1) {
+				createClientView.showDialog(result, createClientModel.getMessage());
+				createClientView.clearView();
+				MasterController.getMaster().fireEvent("C");
+				return;
+			}
 			MasterController master = MasterController.getMaster();
+			createClientView.showDialog(result, createClientModel.getMessage() + "\n" + createClientModel.printClientInfo());
+			createClientView.clearView();
 			master.fireEvent("C");
+			createClientModel.writeClient();
+			master.fireEvent("VC");
 		});
 		
 	}

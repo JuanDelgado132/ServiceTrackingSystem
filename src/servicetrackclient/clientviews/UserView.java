@@ -2,7 +2,6 @@ package servicetrackclient.clientviews;
 
 import java.io.File;
 
-import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
@@ -23,7 +22,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
-import javafx.scene.layout.StackPane;
 import javafx.stage.Screen;
 
 public class UserView extends AnchorPane implements BaseView{
@@ -154,11 +152,7 @@ public class UserView extends AnchorPane implements BaseView{
 		
 		
 		sc = new Scene(this,primaryScreen.getVisualBounds().getWidth(),primaryScreen.getVisualBounds().getHeight());
-		
-		
-		
 		sc.getStylesheets().add("file:///" + new File("C:\\ServiceTracking\\Client\\css\\bootstrap3.css").getAbsolutePath().replace("\\", "/"));
-		//sc.getStylesheets().add("file:///" + new File("C:\\ServiceTracking\\Client\\css\\main.css").getAbsolutePath().replace("\\", "/"));
 		
 		
 	}

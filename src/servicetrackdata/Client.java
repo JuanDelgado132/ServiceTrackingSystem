@@ -15,6 +15,7 @@ import java.time.Period;
  * 
  * This class will hold a client information.
  */
+@SuppressWarnings("serial")
 public class Client extends Person{
     private String gender;
     private int age;

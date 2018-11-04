@@ -8,17 +8,17 @@ import java.io.ObjectOutputStream;
 import java.net.ConnectException;
 import java.net.UnknownHostException;
 
-import servicetrackclient.ServiceTrackClient;
+import servicetrackclient.ClientNetworkFunctions;
 import servicetrackdata.User;
 import servicetrackdirectories.DirectoryStructure;
 
 public class LogInModel {
 	
 	private User loggedInUser;
-	private ServiceTrackClient client;
+	private ClientNetworkFunctions client;
 	
 	public LogInModel() {
-		client = new ServiceTrackClient();
+		client = new ClientNetworkFunctions();
 	}
 	
 	public boolean logIn(String email, String password) throws ConnectException {
@@ -26,7 +26,6 @@ public class LogInModel {
 		loggedInUser = new User();
 		loggedInUser.setEmail(email);
 		loggedInUser.setPassword(password);
-		System.out.println(password);
 		client.addActionCode("LG");
 		client.addPerson(loggedInUser);
 		try {
@@ -69,12 +68,12 @@ public class LogInModel {
 	 */
 	public void writeUser() {
 		try {
-			DirectoryStructure.createUserFile();
+			DirectoryStructure.createLoggedInFile();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		File userFile = new File(DirectoryStructure.getUserFile());
+		File userFile = new File(DirectoryStructure.getLoggedInFile());
 		try {
 			var output = new ObjectOutputStream(new FileOutputStream(userFile));
 			output.writeObject(loggedInUser);

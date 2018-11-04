@@ -20,9 +20,10 @@ public class CreateUserController implements BaseController{
 	public void setupView() {
 		createUserView.initializeView();
 		createUserView.addCreateNewUserButtonListener(actionEvent ->{
+			int result = 0;
+			String message = "";
 			String pass = createUserView.getPassword();
 			String verPass = createUserView.getVerifiedPassword();
-			int result = -1;
 			if(pass.compareTo(verPass) != 0) {
 				createUserView.showDialog(-1, "Passwords do not match");
 				return;
@@ -39,10 +40,10 @@ public class CreateUserController implements BaseController{
 				return;
 			}
 			
-			if(!role.equalsIgnoreCase("admin") && !role.equalsIgnoreCase("staff")) {
+			/*if(!role.equalsIgnoreCase("admin") && !role.equalsIgnoreCase("staff")) {
 				createUserView.showDialog(-1, "The user role must either be staff of admin");
 				return;
-			}
+			}*/
 			try {
 				result = createUserModel.createUser(firstName, lastName, email, role, address, phoneNumber, pass);
 			} catch (ClassNotFoundException | IOException e) {
@@ -50,8 +51,11 @@ public class CreateUserController implements BaseController{
 				createUserView.showDialog(-1, e.getMessage());
 				return;
 			}
-			
-			createUserView.showDialog(result, createUserModel.getMessage() + "\n" + createUserModel. printUserInfo());
+			if(result == -1)
+				message = createUserModel.getMessage();
+			else if(result == 1)
+				message = createUserModel.getMessage() + "\n" + createUserModel.printUserInfo();
+			createUserView.showDialog(result, message);
 			createUserView.clearView();
 			
 			MasterController master = MasterController.getMaster();

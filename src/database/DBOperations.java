@@ -11,7 +11,9 @@ import servicetrackdata.User;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.sql.Connection;
@@ -24,6 +26,9 @@ import java.util.HashMap;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.opencsv.CSVWriter;
+
 import java.util.Random;
 import servicetrackdirectories.DirectoryStructure;
 
@@ -50,7 +55,7 @@ public class DBOperations {
     //private Connection conn;
     //private PreparedStatement pstmt;
    // private Statement stmt;
-    private ResultSet results;
+    //private ResultSet results;
     private static DBOperations DBOpsSingleton;
 
     
@@ -94,13 +99,15 @@ public class DBOperations {
             
             String userTable = "CREATE TABLE USERS(id int(7) NOT NULL, first_name VARCHAR(40), last_name VARCHAR (40),email VARCHAR(50), role VARCHAR(25), address VARCHAR(50), phone VARCHAR(15), user_password VARCHAR (255), salt VARCHAR(255), PRIMARY KEY (id), UNIQUE KEY unique_email (email));";
             String clientTable = "CREATE TABLE CLIENTS (id int(7) NOT NULL, first_name VARCHAR(40), last_name VARCHAR (40), gender VARCHAR (15),  comments VARCHAR(200), birthday DATE, PRIMARY KEY (id));";
-            String serviceTable = "CREATE TABLE SERVICES (service_id int(7) NOT NULL, service_name VARCHAR(50), service_description VARCHAR(50), restriction ENUM ('10', 'Female', 'None'),PRIMARY KEY (service_id));";
-            String clientServRelTable = "CREATE TABLE CLIENT_SERVICE_REL (id int(7), service_id int(5), times_used int(5) DEFAULT 0, last_used DATE, PRIMARY KEY (id, service_id), FOREIGN KEY (id) REFERENCES CLIENTS(id) ON DELETE CASCADE, FOREIGN KEY (service_id) REFERENCES SERVICES(service_id) ON DELETE CASCADE);";
+            String serviceTable = "CREATE TABLE SERVICES (service_id int(7) NOT NULL, service_name VARCHAR(50), service_description VARCHAR(50), days VARCHAR(50), time VARCHAR(50),PRIMARY KEY (service_id));";
+            String clientServRelTable = "CREATE TABLE CLIENT_SERVICE_REL (id int(7), service_id int(7), times_used int(5) DEFAULT 0, last_used DATE, PRIMARY KEY (id, service_id), FOREIGN KEY (id) REFERENCES CLIENTS(id) ON DELETE CASCADE, FOREIGN KEY (service_id) REFERENCES SERVICES(service_id) ON DELETE CASCADE);";
+            String serviceUseView = "CREATE VIEW service_use_view AS (SELECT clients.*, services.*, client_service_rel.times_used, client_service_rel.last_used FROM clients, services, client_service_rel WHERE clients.id = client_service_rel.id AND services.service_id = client_service_rel.service_id ORDER BY clients.id ASC);";
             stmt = conn.createStatement();
             stmt.executeUpdate(userTable);
             stmt.executeUpdate(clientTable);
             stmt.executeUpdate(serviceTable);
             stmt.executeUpdate(clientServRelTable);
+            stmt.executeUpdate(serviceUseView);
             
         } 
         catch (SQLException ex) {
@@ -110,12 +117,12 @@ public class DBOperations {
             releaseResources(conn);
             releaseResources(pstmt);
             releaseResources(stmt);
-            releaseResources(results);
+            
             
         }
         
         //Create the default admin user.
-        var user = new User("admin", "admin", 78787878, "admin@nonprofit.org", "Admin", "@dmin45", "542 E. Street", "(956)656-9822");
+        var user = new User("admin", "admin", 78787878, "admin@goodneighborsh.org", "Administrator", "@dmin45", "542 E. Street", "(956)656-9822");
         addNewUser(user);
         
     }
@@ -176,7 +183,6 @@ public class DBOperations {
         finally{
            releaseResources(conn);
            releaseResources(pstmt);
-           releaseResources(results);
         }
         
     }
@@ -187,29 +193,43 @@ public class DBOperations {
      * @author Juan Delgado
      * Update user query, cant change id, or name.
      * @throws SQLException 
+     * @throws NoSuchAlgorithmException 
+     * @throws InvalidKeySpecException 
      */
-    public void updateUserInfo(User user) throws SQLException{
-        String sqlQuery = "UPDATE USERS SET USERS.email = ?, USERS.role = ?, USERS.address = ?, USERS.phone = ?";
+    public void updateUserInfo(User user) throws SQLException, NoSuchAlgorithmException, InvalidKeySpecException{
+        String sqlQuery = "UPDATE USERS SET USERS.email = ?, USERS.role = ?, USERS.address = ?, USERS.phone = ?, USERS.user_password = ?, USERS.salt = ? WHERE USERS.id = ?";
         PreparedStatement pstmt = null;
         Connection conn = null;
+        String salt = null;
         try {
+        	salt = DBUtilities.generateSalt();
+            user.setPassword(DBUtilities.encryptedPassword(user.getPassword(), salt));
             conn = DriverManager.getConnection(hostName + dbName, dbUsername, dbPassword);
             pstmt = conn.prepareStatement(sqlQuery);
             pstmt.setString(1, user.getEmail());
             pstmt.setString(2, user.getRole());
             pstmt.setString(3, user.getAddress());
             pstmt.setString(4, user.getPhoneNumber());
+            pstmt.setString(5, user.getPassword());
+            pstmt.setString(6, salt);
+            pstmt.setInt(7, user.getId());
             pstmt.executeUpdate();
         } catch (SQLException ex) {
         	throw ex; //Server will take care of the exception we just want to make sure the database connection closses.
-        }
+        } catch (NoSuchAlgorithmException ex) {
+			// TODO Auto-generated catch block
+        	throw ex;
+		} catch (InvalidKeySpecException ex) {
+			// TODO Auto-generated catch block
+			throw ex;
+		}
         finally {
             releaseResources(conn);
             releaseResources(pstmt);
         }
     }
     /**
-     * 
+     * Returns the user based on the id.
      * @param userId
      * @return
      * @author Juan Delgado
@@ -221,13 +241,14 @@ public class DBOperations {
         User user = null;
         PreparedStatement pstmt = null;
         Connection conn = null;
+        ResultSet results = null;
         try {
             conn = DriverManager.getConnection(hostName + dbName, dbUsername, dbPassword);
             pstmt = conn.prepareStatement(sqlQuery);
             pstmt.setInt(1, userId);
             results = pstmt.executeQuery();
-            results.first();
-            user = new User(results.getString("first_name"), results.getString("last_name"), results.getInt("id"), results.getString("email"), results.getString("role"), results.getString("user_password"), results.getString("address"), results.getString("phone"));
+            if(results.first())
+            	user = new User(results.getString("first_name"), results.getString("last_name"), results.getInt("id"), results.getString("email"), results.getString("role"), results.getString("user_password"), results.getString("address"), results.getString("phone"));
         } catch (SQLException ex) {
             throw ex;
         }
@@ -238,6 +259,35 @@ public class DBOperations {
         }
         
         return user;
+    }
+    /**
+     * Retrieve client based on id.
+     * @param clientID
+     * @return
+     * @throws SQLException
+     */
+    public Client getClient(int clientID) throws SQLException {
+    	String sqlQuery = "SELECT * FROM CLIENTS WHERE CLIENTS.id = ?";
+    	Client client = null;
+    	PreparedStatement pstmt = null;
+    	Connection conn = null;
+    	ResultSet results = null;
+    	try {
+			conn = DriverManager.getConnection(hostName + dbName, dbUsername, dbPassword);
+			pstmt = conn.prepareStatement(sqlQuery);
+			pstmt.setInt(1, clientID);
+			results = pstmt.executeQuery();
+			if(results.first())
+				client = new Client(results.getString("first_name"), results.getString("last_name"), results.getInt("id"), results.getString("gender"), results.getString("birthday"), results.getString("comments"));
+			
+		} catch (SQLException ex) {
+			throw ex;
+		} finally {
+            releaseResources(conn);
+            releaseResources(pstmt);
+            releaseResources(results);
+        }
+    	return client;
     }
     
     /**
@@ -254,6 +304,7 @@ public class DBOperations {
         User user = null;
         PreparedStatement pstmt = null;
         Connection conn = null;
+        ResultSet results = null;
         try {
             conn = DriverManager.getConnection(hostName + dbName, dbUsername, dbPassword);
             pstmt = conn.prepareStatement(sqlQuery);
@@ -322,7 +373,7 @@ public class DBOperations {
      * @throws SQLException 
      */
     public void addNewService(Service newService) throws SQLException{
-        String sqlQuery = "INSERT INTO SERVICES(service_id, service_name, service_description,restriction)VALUES(?,?,?,?)";
+        String sqlQuery = "INSERT INTO SERVICES(service_id, service_name, service_description,days, time)VALUES(?,?,?,?,?)";
         PreparedStatement pstmt = null;
         Connection conn = null;
         try {
@@ -332,7 +383,8 @@ public class DBOperations {
            pstmt.setInt(1, newService.getServiceID());
            pstmt.setString(2, newService.getServiceName());
            pstmt.setString(3, newService.getServiceDescription());
-           pstmt.setString(4, newService.getRestriction());
+           pstmt.setString(4, newService.getDays());
+           pstmt.setString(5, newService.getTime());
            pstmt.executeUpdate();
         } catch (SQLException ex) {
             throw ex;
@@ -348,13 +400,14 @@ public class DBOperations {
         Service service = null;
         PreparedStatement pstmt = null;
         Connection conn = null;
+        ResultSet results = null;
         try {
             conn = DriverManager.getConnection(hostName + dbName, dbUsername, dbPassword);
             pstmt = conn.prepareStatement(sqlQuery);
             pstmt.setInt(1, serviceID);
             results = pstmt.executeQuery();
             if(results.first()){
-                service = new Service(results.getInt("service_id"),results.getString("service_name"), results.getString("service_description"), results.getString("restriction"));
+                service = new Service(results.getInt("service_id"),results.getString("service_name"), results.getString("service_description"), results.getString("days"), results.getString("time"));
             }
         } catch (SQLException ex) {
             throw ex;
@@ -401,14 +454,14 @@ public class DBOperations {
         HashMap<Integer, Service> services = new HashMap<>();
         PreparedStatement pstmt = null;
         Connection conn = null;
-        
+        ResultSet results = null;
         try {
             conn = DriverManager.getConnection(hostName + dbName, dbUsername, dbPassword);
             pstmt = conn.prepareStatement(sqlQuery);
             pstmt.setInt(1, client.getId());
             results = pstmt.executeQuery();
             while(results.next()){
-                services.put(results.getInt("service_id"), new Service(results.getInt("service_id"),results.getString("service_name"), results.getString("service_description"), results.getString("restriction")));
+                services.put(results.getInt("service_id"), new Service(results.getInt("service_id"),results.getString("service_name"), results.getString("service_description"), results.getString("days"), results.getString("time")));
             }
         } catch (SQLException ex) {
             throw ex;
@@ -429,17 +482,18 @@ public class DBOperations {
      */
     public HashMap<Integer, Service> getNonRegisteredServices(Client client) throws SQLException{
         
-        String sqlQuery = "SELECT * FROM SERVICES WHERE SERVICES.service_id IN (SELECT CLIENT_SERVICE_REL.service_id FROM CLIENT_SERVICE_REL WHERE CLIENT_SERVICE_REL.id != ?)";
+        String sqlQuery = "SELECT * FROM SERVICES WHERE SERVICES.service_id NOT IN (SELECT CLIENT_SERVICE_REL.service_id FROM CLIENT_SERVICE_REL WHERE CLIENT_SERVICE_REL.id = ?)";
         HashMap<Integer, Service> services = new HashMap<>();
         PreparedStatement pstmt = null;
         Connection conn = null;
+        ResultSet results = null;
         try {
             conn = DriverManager.getConnection(hostName + dbName, dbUsername, dbPassword);
             pstmt = conn.prepareStatement(sqlQuery);
             pstmt.setInt(1, client.getId());
             results = pstmt.executeQuery();
             while(results.next()){
-                services.put(results.getInt("service_id"), new Service(results.getInt("service_id"),results.getString("service_name"), results.getString("service_description"), results.getString("restriction")));
+                services.put(results.getInt("service_id"), new Service(results.getInt("service_id"),results.getString("service_name"), results.getString("service_description"), results.getString("days"), results.getString("time")));
             }
         } catch (SQLException ex) {
             throw ex;
@@ -487,6 +541,7 @@ public class DBOperations {
         String sqlQuery = "INSERT INTO CLIENTS(id, first_name, last_name, gender, comments, birthday)VALUES(?,?,?,?,?,?)";
         PreparedStatement pstmt = null;
         Connection conn = null;
+        ResultSet results = null;
         try {
         	clientToAdd.setId(generateRandomID('c'));
             conn = DriverManager.getConnection(hostName + dbName, dbUsername, dbPassword);
@@ -540,7 +595,7 @@ public class DBOperations {
             throw ex;
         }
         finally{
-            releaseResources(pstmt);
+            releaseResources(pstmt); 
             releaseResources(conn);
         }
         
@@ -586,10 +641,41 @@ public class DBOperations {
         
         
     }
-     
-     
-     
-        
+     public byte[] exportAllData() {
+    	 String sqlQuery = "SELECT * FROM service_use_view ORDER BY id ASC;";
+    	 String fileName = "service_use.csv";
+    	 Statement stmt = null;
+    	 File csvFile = new File(fileName);
+    	 ResultSet results = null;
+    	 Connection conn = null;
+    	 byte[] fileBytes = null;
+    	 
+    	 try {
+    		 FileWriter csvFileWriter = new FileWriter(csvFile);
+    		 CSVWriter csvWriter = new CSVWriter(csvFileWriter);
+			conn = DriverManager.getConnection(hostName + dbName, dbUsername, dbPassword);
+			stmt = conn.createStatement();
+			results = stmt.executeQuery(sqlQuery);
+			if(results.first())
+				csvWriter.writeAll(results, true);
+			else
+				csvWriter.writeNext(new String[] {"No data has been created yet."});
+			csvWriter.close();
+			fileBytes = Files.readAllBytes(csvFile.toPath());
+			
+		} catch (SQLException e) {
+			
+		} catch (IOException e) {
+			
+		} finally {
+			releaseResources(conn);
+			releaseResources(results);
+			releaseResources(stmt);
+		}
+    	 //Delete the file we do not have to store it in the server, this is just a temp file.
+    	 csvFile.delete();
+    	 return fileBytes;
+     }
     /**
      * This will generate a  random ID for any new user.
      * @param table
@@ -627,6 +713,7 @@ public class DBOperations {
         boolean idAvailable = true;
         sqlQuery = "SELECT * FROM USERS WHERE id = ?";
         Connection conn = DriverManager.getConnection(hostName + dbName, dbUsername, dbPassword);
+        ResultSet results = null;
         do {
             
            PreparedStatement pstmt = conn.prepareStatement(sqlQuery);

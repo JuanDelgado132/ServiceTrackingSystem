@@ -9,6 +9,7 @@ package servicetrackdata;
  *
  * @author juand
  */
+@SuppressWarnings("serial")
 public class User extends Person{
     private String email;
     private String role;
@@ -20,8 +21,10 @@ public class User extends Person{
     public User(){
         super();
         email = " ";
-        role = " ";
+        role = " "; 
         password = " ";
+        address = " ";
+        phoneNumber = "";
     }
     
     public User(String firstName, String lastName, int id, String email, String role, String password, String address, String phoneNumber){
