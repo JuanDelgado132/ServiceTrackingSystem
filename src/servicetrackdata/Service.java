@@ -19,13 +19,14 @@ public class Service implements Serializable{
     private String serviceDescription;
     private String days;
     private String time;
-    
+    private int active;
     public Service(){
         serviceID = 0;
         serviceName = " ";
         serviceDescription = " ";
         days = " ";
         time = " ";
+        active = 1;
     }
 
     public Service(int serviceID, String serviceName, String serviceDescription, String days, String time) {
@@ -34,6 +35,16 @@ public class Service implements Serializable{
         this.serviceDescription = serviceDescription;
         this.days = days;
         this.time = time;
+        //active = 1 means the user is available for reporting and can be registered to services.
+        active = 1;
+    }
+    public Service(int serviceID, String serviceName, String serviceDescription, String days, String time, int active) {
+        this.serviceID = serviceID;
+        this.serviceName = serviceName;
+        this.serviceDescription = serviceDescription;
+        this.days = days;
+        this.time = time;
+        this.active = active;
     }
     
     public int getServiceID() {
@@ -59,8 +70,12 @@ public class Service implements Serializable{
     public void setServiceDescription(String serviceDescription) {
         this.serviceDescription = serviceDescription;
     }
-    
-
+    public void setActiveStatus(int active) {
+    	this.active = active;
+    }
+    public int getActiveStatus() {
+    	return active;
+    }
     public String getDays() {
 		return days;
 	}

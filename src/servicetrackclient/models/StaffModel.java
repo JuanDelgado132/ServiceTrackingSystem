@@ -8,18 +8,16 @@ import java.io.ObjectOutputStream;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 
-
 import servicetrackclient.ClientNetworkFunctions;
 import servicetrackdata.Client;
 import servicetrackdata.Service;
 import servicetrackdata.User;
 import servicetrackdirectories.DirectoryStructure;
 
-public class AdminModel {
-
+public class StaffModel {
 	private ClientNetworkFunctions client;
 
-	public AdminModel() {
+	public StaffModel() {
 		client = new ClientNetworkFunctions();
 	}
 
@@ -35,34 +33,12 @@ public class AdminModel {
 		File userFile = new File(DirectoryStructure.getLoggedInFile());
 		userFile.delete();
 	}
-
-	/**
-	 * Get the user the staff member searched for.
-	 * @param requestedUser
-	 * @return
-	 * @throws Exception
-	 */
-	public User requestUser(User requestedUser) throws Exception {
-		client.addActionCode("GU");
-		client.addPerson(requestedUser);
-		try {
-			client.establishConnection();
-			client.sendPacketToServer();
-			client.receivePacketFromServer();
-		} catch (IOException | ClassNotFoundException e) {
-			throw e;
-		} finally {
-			client.closeConnection();
-		}
-
-		return (User) client.getPerson();
-	}
-
 	/**
 	 * Get the client the staff member searched for/
 	 * @param requestedClient
 	 * @return
 	 * @throws Exception
+	 * @author juand
 	 */
 	public Client requestClient(Client requestedClient) throws Exception {
 		client.addActionCode("GC");
@@ -71,39 +47,20 @@ public class AdminModel {
 			client.establishConnection();
 			client.sendPacketToServer();
 			client.receivePacketFromServer();
-		} catch (IOException | ClassNotFoundException e) {
-			throw e;
+		} catch (IOException | ClassNotFoundException ex) {
+			throw ex;
 		} finally {
 			client.closeConnection();
 		}
 		return (Client) client.getPerson();
 	}
 	/**
-	 * Search for the requested service.
-	 * @param serviceID
+	 * Get services that client has not registered yet.
+	 * @param requestedClient
 	 * @return
-	 * @throws IOException 
-	 * @throws ClassNotFoundException 
+	 * @throws Exception
+	 * @author juand
 	 */
-	public Service getRequestedService(Service requestedService) throws IOException, ClassNotFoundException {
-		client.addActionCode("RQS");
-		client.addService(requestedService);
-		try {
-			client.establishConnection();
-			client.sendPacketToServer();
-			client.receivePacketFromServer();
-		} catch (IOException ex) {
-			throw ex;
-		} catch (ClassNotFoundException ex) {
-			throw ex;
-		} finally {
-			client.closeConnection();
-		}
-		
-		return client.getService();
-		
-		
-	}
 	public HashMap<Integer, Service> getNonRegisteredServices(Client requestedClient) throws Exception {
 		client.addActionCode("NRS");
 		client.addPerson(requestedClient);
@@ -120,6 +77,15 @@ public class AdminModel {
 		return client.getServices();
 
 	}
+	/**
+	 * Get the services that the client has, so that we can mark it as used.
+	 * @param requestedClient
+	 * @return
+	 * @throws UnknownHostException
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 * @author Juand
+	 */
 	public HashMap<Integer, Service> getRegisteredService(Client requestedClient) throws UnknownHostException, IOException, ClassNotFoundException{
 		client.addActionCode("RG");
 		client.addPerson(requestedClient);

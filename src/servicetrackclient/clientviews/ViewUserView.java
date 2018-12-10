@@ -22,7 +22,9 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import servicetrackdata.User;
+import servicetrackdirectories.DirectoryStructure;
 
 public class ViewUserView extends AnchorPane implements BaseView{
 	private Label firstName;
@@ -65,7 +67,7 @@ public class ViewUserView extends AnchorPane implements BaseView{
 
 	@Override
 	public void initializeView() {
-		//Initialzie the fields.
+		//Initialize the fields.
 				title = new Label("Please Fill Out The Information Below To Add a New User.");
 				firstName = new Label("First Name: ");
 				lastName = new Label("Last Name: ");
@@ -102,6 +104,10 @@ public class ViewUserView extends AnchorPane implements BaseView{
 				
 				rolePane = new HBox(10);
 				rolePane.getChildren().addAll(admin, staff);
+				
+				dialog = new Alert(AlertType.NONE);
+				dialog.setTitle("Good Neighbor Alert");
+				dialog.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
 				
 				buttonPane = new HBox(10);
 				buttonPane.getChildren().addAll(deleteUserButton, updateUserButton);
@@ -163,8 +169,7 @@ public class ViewUserView extends AnchorPane implements BaseView{
 				AnchorPane.setLeftAnchor(mainScreen, 0.0);
 				
 				scene = new Scene(this, 500, 420);
-				scene.getStylesheets().add("file:///" + new File("C:\\ServiceTracking\\Client\\css\\bootstrap3.css").getAbsolutePath().replace("\\", "/"));
-		
+				scene.getStylesheets().add("file:///" + new File(DirectoryStructure.getMainDir() + "Client\\css\\bootstrap3.css").getAbsolutePath().replace("\\", "/"));
 	}
 	public String getFirstName() {
 		return firstNameField.getText();
@@ -248,11 +253,10 @@ public class ViewUserView extends AnchorPane implements BaseView{
 	}
 	public void showDialog(int code, String message) {
 		if (code == -1)
-			dialog = new Alert(AlertType.ERROR);
+			dialog.setAlertType(AlertType.ERROR);
 		else
-			dialog = new Alert(AlertType.INFORMATION);
+			dialog.setAlertType(AlertType.INFORMATION);
 		
-		dialog.setTitle("Good Neighbor Alert");
 		dialog.setContentText(message);
 		dialog.showAndWait();
 	}

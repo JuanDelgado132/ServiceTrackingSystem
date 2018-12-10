@@ -82,7 +82,6 @@ public class ViewUserController implements BaseController{
 			else if (response.isPresent() && response.get() == ButtonType.CANCEL)
 				return;
 			
-			viewUserView.clearView();
 			MasterController.getMaster().fireEvent("C");
 			viewUserModel.deleteUserFile();
 			
@@ -104,6 +103,13 @@ public class ViewUserController implements BaseController{
 		viewUserView.setAddress(user.getAddress());
 		viewUserView.setPhoneNumber(user.getPhoneNumber());
 		viewUserView.setPassword(user.getPassword());
+	}
+
+
+	@Override
+	public void clearTheView() {
+		viewUserView.clearView();
+		
 	}
 
 }

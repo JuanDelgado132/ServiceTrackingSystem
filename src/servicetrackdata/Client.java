@@ -21,6 +21,7 @@ public class Client extends Person{
     private int age;
     private String birthDay;
     private String comments;
+    private int active;
     
     
     public Client() {
@@ -32,6 +33,15 @@ public class Client extends Person{
         this.gender = gender;
         this.birthDay = birthDay;
         this.comments = comments;
+        active = 1;
+        this.age = calculateAge(); //age goes last since it is calculated.
+    }
+    public Client(String firstName, String lastName, int id, String gender, String birthDay, String comments, int active){
+        super(firstName, lastName, id);
+        this.gender = gender;
+        this.birthDay = birthDay;
+        this.comments = comments;
+        this.active = active;
         this.age = calculateAge(); //age goes last since it is calculated.
     }
 
@@ -66,6 +76,12 @@ public class Client extends Person{
     public void setComments(String comments) {
         this.comments = comments;
     }
+    public void setActiveStatus(int active) {
+    	this.active = active;
+    }
+    public int getActiveStatus() {
+    	return active;
+    }
     public String toString(){
        return  super.toString()
                +"\nGender: " + gender
@@ -86,7 +102,7 @@ public class Client extends Person{
         current = LocalDate.parse(currentDateFormatText, dateFormat); //we have to parse the date to a LocalDate variable.
         LocalDate dateOfBirth = LocalDate.parse(birthDay, dateFormat); // We parse our birthday to a LocalDate variable.
         
-        
+        //Calculate age.
         return Period.between(dateOfBirth, current).getYears();
     }
 }

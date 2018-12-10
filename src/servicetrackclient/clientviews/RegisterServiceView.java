@@ -19,7 +19,10 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import servicetrackdata.Service;
+import servicetrackdirectories.DirectoryStructure;
 
 public class RegisterServiceView extends AnchorPane implements BaseView {
 	
@@ -48,23 +51,32 @@ public class RegisterServiceView extends AnchorPane implements BaseView {
 		services = new ArrayList<>();
 		serviceListPane = new FlowPane();
 		serviceListPane.setHgap(10.0);
-		serviceListPane.setAlignment(Pos.BASELINE_LEFT);
+		serviceListPane.setAlignment(Pos.CENTER_LEFT);
 		buttonPane = new HBox(10);
 		buttonPane.getChildren().addAll(registerButton, closeButton);
-		buttonPane.setAlignment(Pos.BASELINE_RIGHT);
+		buttonPane.setAlignment(Pos.CENTER_RIGHT);
 		mainPane = new GridPane();
 		mainPane.setPadding(new Insets(10,10,10,10));
 		mainPane.add(subTitle, 0, 0);
 		mainPane.add(serviceListPane, 0, 1);
-		mainPane.add(buttonPane, 0, 2);
 		GridPane.setHalignment(subTitle, HPos.CENTER);
+		GridPane.setHalignment(serviceListPane, HPos.CENTER);
+		GridPane.setHgrow(serviceListPane, Priority.ALWAYS);
+		
 		mainScreen = new BorderPane();
+		mainScreen.setPadding(new Insets(10,10,10,10));
 		mainScreen.setTop(mainTitle);
 		mainScreen.setCenter(mainPane);
+		mainScreen.setBottom(buttonPane);
+		mainScreen.setPrefWidth(600);
+		mainScreen.setPrefHeight(420);
 		BorderPane.setAlignment(mainTitle, Pos.CENTER);
 		BorderPane.setAlignment(mainPane, Pos.CENTER);
+		BorderPane.setAlignment(buttonPane, Pos.CENTER_RIGHT);
 		
 		dialog = new Alert(AlertType.NONE);
+		dialog.setTitle("Good Neighbor Alert");
+		dialog.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
 		
 		this.getChildren().addAll(mainScreen);
 		AnchorPane.setBottomAnchor(mainScreen, 0.0);
@@ -73,8 +85,7 @@ public class RegisterServiceView extends AnchorPane implements BaseView {
 		AnchorPane.setLeftAnchor(mainScreen, 0.0);
 		
 		scene = new Scene(this, 600, 420);
-		scene.getStylesheets().add("file:///" + new File("C:\\ServiceTracking\\Client\\css\\bootstrap3.css").getAbsolutePath().replace("\\", "/"));
-		
+		scene.getStylesheets().add("file:///" + new File(DirectoryStructure.getMainDir() + "Client\\css\\bootstrap3.css").getAbsolutePath().replace("\\", "/"));
 		
 		
 	}
@@ -109,6 +120,7 @@ public class RegisterServiceView extends AnchorPane implements BaseView {
 
 	@Override
 	public void clearView() {
+		services.clear();
 		serviceListPane.getChildren().clear();
 		subTitle.setText("");
 	}
@@ -118,7 +130,6 @@ public class RegisterServiceView extends AnchorPane implements BaseView {
 		else
 			dialog.setAlertType(AlertType.INFORMATION);
 		
-		dialog.setTitle("Good Neighbor Alert");
 		dialog.setContentText(message);
 		dialog.showAndWait();
 	}

@@ -9,10 +9,17 @@ public interface  BaseController {
 	 */
 	public void setupView();
 	/**
+	 * 
 	 * Returns the scene that this view is in. 
 	 * @return
 	 * @author juand
 	 */
 	public Scene getViewScene();
+	/**
+	 * Clear the controllers view.
+	 * Used for when we close on request the data in the views are emptied.
+	 * @author juand
+	 */
+	public void clearTheView();
 
 }

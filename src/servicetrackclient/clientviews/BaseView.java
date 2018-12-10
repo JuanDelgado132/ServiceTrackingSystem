@@ -11,6 +11,7 @@ public interface BaseView {
 	 */
 	public void initializeView();
 	/**
+	 * @deprecated you can already get the scene from the view itself from the node class.
 	 * This will create a stage and show the view.
 	 * @author juand
 	 */

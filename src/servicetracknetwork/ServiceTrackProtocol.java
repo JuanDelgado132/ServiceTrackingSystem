@@ -15,7 +15,7 @@ import servicetrackdata.User;
 
 /**
  * 
- * This is the protocol for sending data over the newtwork.
+ * This packet will hold the data that will be sent over the network. It serves as the packet protocol.
  *
  * @author juand
  */
@@ -30,7 +30,7 @@ public class ServiceTrackProtocol implements Serializable {
     private ArrayList<Person> persons;
     private User loggedInUser;
     private byte[] fileBytes;
-    private String fileExtension;
+    private String selectedDate;
     private int success;
     
     public ServiceTrackProtocol(){
@@ -131,12 +131,14 @@ public class ServiceTrackProtocol implements Serializable {
 		this.fileBytes = fileBytes;
 	}
 	public String getFileExtension() {
-		return fileExtension;
+		return selectedDate;
 	}
-	public void setFileExtension(String fileExtension) {
-		this.fileExtension = fileExtension;
+	public void setSelectedDate(String selectedDate) {
+		this.selectedDate = selectedDate;
 	}
-	
+	public String getSelectedDate() {
+		return selectedDate;
+	}
     
     
 }

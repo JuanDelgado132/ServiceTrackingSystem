@@ -15,6 +15,7 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
+import servicetrackdirectories.DirectoryStructure;
 import javafx.scene.Scene;
 import java.io.File;
 
@@ -93,8 +94,8 @@ public class LogInView extends Pane implements BaseView{
 		scene =  new Scene(this, 425, 400);
 		
 		
-		scene.getStylesheets().add("file:///" + new File("C:\\ServiceTracking\\Client\\css\\bootstrap3.css").getAbsolutePath().replace("\\", "/"));
-		scene.getStylesheets().add("file:///" + new File("C:\\ServiceTracking\\Client\\css\\login.css").getAbsolutePath().replace("\\", "/"));
+		scene.getStylesheets().add("file:///" + new File(DirectoryStructure.getMainDir() + "Client\\css\\bootstrap3.css").getAbsolutePath().replace("\\", "/"));
+		scene.getStylesheets().add("file:///" + new File(DirectoryStructure.getMainDir() + "Client\\css\\login.css").getAbsolutePath().replace("\\", "/"));
 	}
 	
 	public void addLogInButtonListener(EventHandler<ActionEvent> event) {

@@ -14,6 +14,7 @@ public class ClientNetworkFunctions {
 	
 	private Socket serverConnection;
 	private ServiceTrackProtocol packet;
+	public static String serverIP = "192.168.2.6";
 	
 	
 	
@@ -25,7 +26,7 @@ public class ClientNetworkFunctions {
 	}
 	
 	public void establishConnection() throws UnknownHostException, IOException {
-		serverConnection = new Socket("172.21.43.225", 4500);
+		serverConnection = new Socket(serverIP, 4500);
 		
 	}
 	
@@ -69,18 +70,16 @@ public class ClientNetworkFunctions {
 	public String getExportFileExtentsion() {
 		return packet.getFileExtension();
 	}
+	public void setSelectedDate(String date) {
+		packet.setSelectedDate(date);
+	}
 	public void sendPacketToServer() throws IOException {
 		var clientOutput = new ObjectOutputStream(serverConnection.getOutputStream());
 		clientOutput.writeObject(packet);
-		//System.out.println("packet sent");
-		
-		
 	}
 	public void receivePacketFromServer() throws IOException, ClassNotFoundException {
 		var serverInput = new ObjectInputStream(serverConnection.getInputStream());
 		packet = (ServiceTrackProtocol)serverInput.readObject();
-		//System.out.println("packet received.");
-		
 	}
 	
 	
@@ -91,7 +90,7 @@ public class ClientNetworkFunctions {
 			try {
 				serverConnection.close();
 			} catch (IOException e) {
-				//Ignore.
+				//Ignore
 			}
 		}
 	}

@@ -18,9 +18,12 @@ import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import servicetrackdirectories.DirectoryStructure;
 
 public class CreateUserView extends AnchorPane implements BaseView{
 	private Label firstName;
@@ -50,8 +53,11 @@ public class CreateUserView extends AnchorPane implements BaseView{
 	private GridPane enterUserInfoPane;
 	private BorderPane mainScreen;
 	private HBox rolePane;
+	private FlowPane buttonPane;
 	
 	private Button addUserButton;
+	private Button closeButton;
+	
 	
 	private Scene scene;
 	
@@ -80,7 +86,7 @@ public class CreateUserView extends AnchorPane implements BaseView{
 		verifyPasswordField = new PasswordField();
 		
 		addUserButton = new Button("Create New User");
-		
+		closeButton = new Button("Close Window");
 		roleToggle = new ToggleGroup();
 		admin = new RadioButton("Administrator");
 		staff = new RadioButton("Staff");
@@ -90,7 +96,9 @@ public class CreateUserView extends AnchorPane implements BaseView{
 		rolePane = new HBox(10);
 		rolePane.getChildren().addAll(admin, staff);
 		
-
+		buttonPane = new FlowPane();
+		buttonPane.setAlignment(Pos.CENTER_RIGHT);
+		buttonPane.getChildren().addAll(addUserButton, closeButton);
 		
 		enterUserInfoPane = new GridPane();
 		enterUserInfoPane.setPadding(new Insets(10.0, 10.0, 10.0, 10.0));
@@ -101,6 +109,8 @@ public class CreateUserView extends AnchorPane implements BaseView{
 		mainScreen.setPadding(new Insets(10,10,10,10));
 		
 		dialog = new Alert(AlertType.NONE);
+		dialog.setTitle("Good Neighbor Alert");
+		dialog.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
 		
 		//Add the fields to the gridpane
 		enterUserInfoPane.add(firstName, 0, 0);
@@ -120,7 +130,7 @@ public class CreateUserView extends AnchorPane implements BaseView{
 		enterUserInfoPane.add(phoneNumberField, 1, 5);
 		enterUserInfoPane.add(passwordField, 1, 6);
 		enterUserInfoPane.add(verifyPasswordField, 1, 7);
-		enterUserInfoPane.add(addUserButton, 1, 8);
+		enterUserInfoPane.add(buttonPane, 1, 8);
 
 		
 		//Set GridPane properties
@@ -145,8 +155,7 @@ public class CreateUserView extends AnchorPane implements BaseView{
 		AnchorPane.setLeftAnchor(mainScreen, 0.0);
 		
 		scene = new Scene(this, 500, 420);
-		scene.getStylesheets().add("file:///" + new File("C:\\ServiceTracking\\Client\\css\\bootstrap3.css").getAbsolutePath().replace("\\", "/"));
-	}
+		scene.getStylesheets().add("file:///" + new File(DirectoryStructure.getMainDir() + "Client\\css\\bootstrap3.css").getAbsolutePath().replace("\\", "/"));	}
 
 	@Override
 	public Scene getViewScene() {
@@ -200,13 +209,15 @@ public class CreateUserView extends AnchorPane implements BaseView{
 	public void addCreateNewUserButtonListener(EventHandler<ActionEvent> event) {
 		addUserButton.setOnAction(event);
 	}
+	public void addCloseButtonListener(EventHandler<ActionEvent> event) {
+		closeButton.setOnAction(event);
+	}
 	public void showDialog(int code, String message) {
 		if (code == -1)
 			dialog.setAlertType(AlertType.ERROR);
 		else
 			dialog.setAlertType(AlertType.INFORMATION);
 		
-		dialog.setTitle("Good Neighbor Alert");
 		dialog.setContentText(message);
 		dialog.showAndWait();
 	}

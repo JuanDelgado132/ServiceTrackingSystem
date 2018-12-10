@@ -39,11 +39,6 @@ public class CreateUserController implements BaseController{
 				createUserView.showDialog(-1, "All fields must filled. Please do not leave a field blank.");
 				return;
 			}
-			
-			/*if(!role.equalsIgnoreCase("admin") && !role.equalsIgnoreCase("staff")) {
-				createUserView.showDialog(-1, "The user role must either be staff of admin");
-				return;
-			}*/
 			try {
 				result = createUserModel.createUser(firstName, lastName, email, role, address, phoneNumber, pass);
 			} catch (ClassNotFoundException | IOException e) {
@@ -56,8 +51,6 @@ public class CreateUserController implements BaseController{
 			else if(result == 1)
 				message = createUserModel.getMessage() + "\n" + createUserModel.printUserInfo();
 			createUserView.showDialog(result, message);
-			createUserView.clearView();
-			
 			MasterController master = MasterController.getMaster();
 			master.fireEvent("C");
 			
@@ -68,6 +61,12 @@ public class CreateUserController implements BaseController{
 	@Override
 	public Scene getViewScene() {
 		return createUserView.getScene();
+	}
+
+	@Override
+	public void clearTheView() {
+		createUserView.clearView();
+		
 	}
 
 }

@@ -18,6 +18,7 @@ public class CreateClientController implements BaseController{
 	public void setupView() {
 		// TODO Auto-generated method stub
 		createClientView.initializeView();
+		//Listener to create a client.
 		createClientView.addCreateCleintListener(event ->{
 			String firstName = createClientView.getFirstName();
 			String lastName = createClientView.getLastName();
@@ -37,10 +38,6 @@ public class CreateClientController implements BaseController{
 				return;
 				
 			}
-			/*if(!gender.equalsIgnoreCase("Male") && !gender.equalsIgnoreCase("Female")) {
-				createClientView.showDialog(-1, "You must enter male or female.");
-				return;
-			}*/
 			
 			try {
 				result = createClientModel.createClient(firstName, lastName, gender, birthDay, comments);
@@ -55,12 +52,25 @@ public class CreateClientController implements BaseController{
 				MasterController.getMaster().fireEvent("C");
 				return;
 			}
+			//Get our master controller
 			MasterController master = MasterController.getMaster();
+			//Notify the user of the success of the operation
 			createClientView.showDialog(result, createClientModel.getMessage() + "\n" + createClientModel.printClientInfo());
+			//Clear the view so that it can be used again
 			createClientView.clearView();
+			//Fire an event signaling that the view should close.
 			master.fireEvent("C");
+			//Write the client file to be used by the client info view
 			createClientModel.writeClient();
+			//Write the service file to be used by the client info view.
+			createClientModel.writeEmptyServiceList();
+			//Fire an event to signal the launch of the client info view.
 			master.fireEvent("VC");
+		});
+		
+		createClientView.closeButtonListener(event ->{
+			MasterController.getMaster().fireEvent("C");
+			
 		});
 		
 	}
@@ -68,7 +78,11 @@ public class CreateClientController implements BaseController{
 	@Override
 	public Scene getViewScene() {
 		// TODO Auto-generated method stub
-		return createClientView.getViewScene();
+		return createClientView.getScene();
+	}
+	@Override
+	public void clearTheView() {
+		createClientView.clearView();
 	}
 
 }

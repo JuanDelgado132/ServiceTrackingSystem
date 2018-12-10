@@ -31,6 +31,7 @@ public class RegisterServiceController implements BaseController{
 			}
 			for(int i = 0; i < servicesSelected.size(); i++) {
 				try {
+					
 					model.registerClient(client, services.get(servicesSelected.get(i)));
 				} catch (Exception ex) {
 					view.showDialog(-1, ex.getMessage());
@@ -44,7 +45,6 @@ public class RegisterServiceController implements BaseController{
 		});
 		//Close Listener
 		view.closeListener(event ->{
-			view.clearView();
 			MasterController.getMaster().fireEvent("C");
 		});
 		
@@ -59,6 +59,12 @@ public class RegisterServiceController implements BaseController{
 	public void setViewInfo(){
 		view.setServices(new ArrayList<Service>(model.readServices().values()));
 		view.setSubTitle("Available Services For " + model.readClient().getFirstName());
+	}
+
+	@Override
+	public void clearTheView() {
+		view.clearView();
+		
 	}
 
 }

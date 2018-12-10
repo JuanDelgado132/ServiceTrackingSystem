@@ -5,9 +5,11 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.util.HashMap;
 
 import servicetrackclient.ClientNetworkFunctions;
 import servicetrackdata.Client;
+import servicetrackdata.Service;
 import servicetrackdirectories.DirectoryStructure;
 
 public class CreateClientModel {
@@ -47,8 +49,7 @@ public class CreateClientModel {
 		try {
 			DirectoryStructure.createClientFile();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			//Ignore, will not be thrown.
 		}
 		File userFile = new File(DirectoryStructure.getClientFile());
 		try {
@@ -56,12 +57,29 @@ public class CreateClientModel {
 			output.writeObject(clientToWrite);
 			output.close();
 		} catch (FileNotFoundException e) {
-			// ignore should not be thrown.
-			e.printStackTrace();
+			// Ignore should not be thrown as file was created beforehand.
 		} catch (IOException e) {
-			// ignore should not be thrown.
-			e.printStackTrace();
+			//Ignore should not be thrown.
 		}
+	}
+	public void writeEmptyServiceList() {
+		HashMap<Integer, Service> services = null;
+		try {
+			DirectoryStructure.createServiceFile();
+		} catch (IOException e) {
+			//Ignore, should not be thrown.
+		}
+		File serviceFile = new File(DirectoryStructure.getServiceFile());
+		try {
+			var output = new ObjectOutputStream(new FileOutputStream(serviceFile));
+			output.writeObject(services);
+			output.close();
+		} catch (IOException e) {
+			//Ignore should not be thrown.
+		}
+		
+		
+		
 	}
 	
 }

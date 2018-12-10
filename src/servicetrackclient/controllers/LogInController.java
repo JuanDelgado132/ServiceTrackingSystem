@@ -60,6 +60,12 @@ public class LogInController implements BaseController{
 	public Scene getViewScene() {
 		return logInScreen.getScene();
 	}
+
+	@Override
+	public void clearTheView() {
+		logInScreen.clearView();
+		
+	}
 	
 	
 

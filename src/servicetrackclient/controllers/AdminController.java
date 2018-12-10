@@ -1,23 +1,15 @@
 package servicetrackclient.controllers;
 
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.ObjectInputStream;
+import java.net.UnknownHostException;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Map.Entry;
-
 import javafx.scene.Scene;
+import serviceclassexception.InvalidIDException;
 import servicetrackclient.clientviews.AdminView;
 import servicetrackclient.models.AdminModel;
 import servicetrackdata.Client;
-import servicetrackdata.InvalidIDException;
 import servicetrackdata.User;
-import servicetrackdirectories.DirectoryStructure;
 import servicetrackdata.Service;
 
 public class AdminController implements BaseController{
@@ -59,20 +51,6 @@ public class AdminController implements BaseController{
 			
 			String searchID = adminView.getID();
 			int id = 0;
-			
-			/*if(searchID.length() < 7 || searchID.length() > 7) {
-				adminView.showDialog(-1, "The id must be 7 numbers in length");
-				return;
-			}
-			//We parse it and catch the exception thrown in case one of the characters in the string is not a number.
-			try {
-				id = Integer.parseInt(searchID);
-			}
-			catch (NumberFormatException ex) {
-				adminView.showDialog(-1, "The id must be a 7 digit number, please try again.");
-				return;
-				
-			}*/
 			try {
 				id = checkSearchBarInput(searchID);
 			} catch (InvalidIDException ex) {
@@ -101,28 +79,15 @@ public class AdminController implements BaseController{
 		//View Client Listener
 		adminView.viewClientListener(event -> {
 			String searchID = adminView.getID();
+			Client requestedClient = new Client();
+			HashMap<Integer,Service> services = null;
 			int id = 0;
-			
-			/*if(searchID.length() < 7 || searchID.length() > 7) {
-				adminView.showDialog(-1, "The id must be 7 numbers in length");
-				return;
-			}
-			//We parse it and catch the exception thrown in case one of the characters in the string is not a number.
-			try {
-				id = Integer.parseInt(searchID);
-			}
-			catch (NumberFormatException ex) {
-				adminView.showDialog(-1, "The id must be a 7 digit number, please try again.");
-				return;
-				
-			}*/
 			try {
 				id = checkSearchBarInput(searchID);
 			} catch (InvalidIDException ex) {
 				adminView.showDialog(-1, ex.getMessage());
 				return;
 			}
-			Client requestedClient = new Client();
 			requestedClient.setId(id);
 			
 			try {
@@ -136,9 +101,20 @@ public class AdminController implements BaseController{
 				adminView.showDialog(1, "The requested client was not found.");
 				return;
 			}
+			//Method will continue even if there is an error getting services from the server. Since the user may still want to update client info.
+			try {
+				services = adminModel.getRegisteredService(requestedClient);
+			} catch (UnknownHostException e) {
+				adminView.showDialog(-1, "Could not connect to server. Ensure server ip address is correct.");
+			} catch (ClassNotFoundException e) {
+				adminView.showDialog(-1, "Could not load Service class.");
+			} catch (IOException e) {
+				adminView.showDialog(-1, "Error sending packet to server");
+			}
 			MasterController master = MasterController.getMaster();
 			//master.setRequestedPerson(requestedUser);
 			adminModel.writeRequestedObject(requestedClient);
+			adminModel.writeRequestedObject(services);
 			master.fireEvent("VC");
 		});
 		//Create a new service
@@ -178,25 +154,51 @@ public class AdminController implements BaseController{
 				adminView.showDialog(-1, ex.getMessage());
 				return;
 			}
+			if(adminModel.getFlag() == -1) {
+				adminView.showDialog(adminModel.getFlag(), adminModel.getMessage());
+				return;
+			}
 			if(services.size() == 0) {
 				adminView.showDialog(1, "The client has all available services registered.");
 				return;
 			}
 			adminModel.writeRequestedObject(services);
-			/*try {
-				var read = new ObjectInputStream(new FileInputStream(new File(DirectoryStructure.getServiceFile())));
-				boolean cont = true;
-				services = (HashMap<Integer,Service>)read.readObject();
-				Iterator<Entry<Integer,Service>> it = services.entrySet().iterator();
-				while(it.hasNext()) {
-					Map.Entry pair = (Map.Entry)it.next();
-					System.out.println(pair.getValue().toString());
-				}
-			} catch (IOException | ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}*/
 			MasterController.getMaster().fireEvent("RS");
+		});
+		adminView.exportDataListener(event -> {
+			
+			MasterController.getMaster().fireEvent("ED");
+			
+		});
+		//Create the view service scene.
+		adminView.viewServiceListener(event->{
+			int serviceID = 0;
+			try {
+				serviceID = checkSearchBarInput(adminView.getID());
+			} catch (InvalidIDException ex) {
+				adminView.showDialog(-1, ex.getMessage());
+			}
+			Service requestedService = new Service();
+			requestedService.setServiceID(serviceID);
+			try {
+				requestedService = adminModel.getRequestedService(requestedService);
+			} catch (ClassNotFoundException e) {
+				adminView.showDialog(-1, "Service class not found. Contact System Administrator.");
+				return;
+			} catch (IOException e) {
+				adminView.showDialog(-1, "Connection to server failed");
+				return;
+			}
+			if(requestedService == null) {
+				adminView.showDialog(-1, "The specified service could not be found.");
+				return;
+			}
+			
+			adminModel.writeRequestedObject(requestedService);
+			MasterController.getMaster().fireEvent("VS");
+			adminView.clearView();
+			
+			
 		});
 		
 	}
@@ -227,6 +229,12 @@ public class AdminController implements BaseController{
 		}
 		
 		return id;
+	}
+
+	@Override
+	public void clearTheView() {
+		adminView.clearView();
+		
 	}
 	
 	

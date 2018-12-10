@@ -15,8 +15,7 @@ import servicetrackdirectories.DirectoryStructure;
 public class RegisterServiceModel {
 	
 	private ClientNetworkFunctions network;
-//	private HashMap<Integer, Service> services;
-//	private  Client client;
+
 	
 	public RegisterServiceModel() {
 		network = new ClientNetworkFunctions();
@@ -30,7 +29,6 @@ public class RegisterServiceModel {
 			network.establishConnection();
 			network.sendPacketToServer();
 			network.receivePacketFromServer();
-			System.out.println("ok");
 
 		} catch (IOException | ClassNotFoundException ex) {
 			throw ex;
@@ -57,6 +55,7 @@ public class RegisterServiceModel {
 
 	return client;
 	}
+	@SuppressWarnings("unchecked")
 	public HashMap<Integer, Service> readServices(){
 		HashMap<Integer,Service> services = null;
 		try {
@@ -69,6 +68,10 @@ public class RegisterServiceModel {
 		return services;
 			
 		
+	}
+	
+	public String getMessage() {
+		return network.message();
 	}
 	
 	

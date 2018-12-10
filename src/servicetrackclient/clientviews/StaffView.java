@@ -2,6 +2,8 @@ package servicetrackclient.clientviews;
 
 import java.io.File;
 
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -26,20 +28,13 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.stage.Screen;
-import servicetrackdirectories.DirectoryStructure;
-import javafx.event.EventHandler;
-import javafx.event.ActionEvent;
 
-public class AdminView extends AnchorPane implements BaseView{
-	
+public class StaffView extends AnchorPane implements BaseView{
 	private Label searchLabel;
 	private TextField searchBar;
 	private Button viewClientInfoButton;
 	private Button registerServiceButton;
-	private Button addNewServiceButton;
-	private Button exportAllDataButton;
 	private Button addNewClientButton;
-	private Button viewServiceButton;
 	private HBox searchPane;
 	private FlowPane optionPane;
 	private HBox menuPane;
@@ -49,9 +44,6 @@ public class AdminView extends AnchorPane implements BaseView{
 	private Menu fileMenu;
 	private Menu help;
 	private Menu logout;
-	private Menu manageUsers;
-	private MenuItem newUser;
-	private MenuItem viewUser;
 	private MenuItem gettingStarted;
 	private MenuItem profile;
 	private MenuItem exportData;
@@ -64,22 +56,20 @@ public class AdminView extends AnchorPane implements BaseView{
 	private GridPane mainPane;
 	
 	private Alert dialog;
-	public AdminView() {
+	
+	public StaffView() {
 		
 	}
 
 	@Override
 	public void initializeView() {
 		//Initialize all private variables.
-		searchLabel = new Label("Enter user, client, or service id");
+		searchLabel = new Label("Enter client id: ");
 		logOutLabel = new Label("Logout");
 		searchBar = new TextField();
 		addNewClientButton = new Button("Add New Client");
 		viewClientInfoButton = new Button("View Client Info");
 		registerServiceButton = new Button("Register Service To Client");
-		viewServiceButton = new Button("View Service");
-		addNewServiceButton = new Button("Create New Service");
-		exportAllDataButton = new Button("Generate Report");
 		mainScreen = new BorderPane();
 		searchPane = new HBox(10);
 		optionPane = new FlowPane();
@@ -91,10 +81,7 @@ public class AdminView extends AnchorPane implements BaseView{
 		mainMenu = new MenuBar();
 		fileMenu = new Menu("File");
 		help = new Menu("Help");
-		manageUsers = new Menu("Manage Users");
 		profile = new MenuItem("Edit Profile");
-		newUser = new MenuItem("Create New User");
-		viewUser = new MenuItem("View User Info");
 		exportData = new MenuItem("Export data");
 		gettingStarted = new MenuItem("Getting Started");
 		logout = new Menu("",logOutLabel);
@@ -120,10 +107,10 @@ public class AdminView extends AnchorPane implements BaseView{
 		
 		
 		fileMenu.getItems().addAll(profile, exportData);
-		manageUsers.getItems().addAll(newUser, viewUser);
+		
 		help.getItems().add(gettingStarted);
 		
-		mainMenu.getMenus().addAll(fileMenu,manageUsers,help,logout);
+		mainMenu.getMenus().addAll(fileMenu,help,logout);
 		menuPane.getChildren().addAll(mainMenu);
 		HBox.setHgrow(mainMenu, Priority.ALWAYS);
 		menuGroup.getChildren().addAll( logoViewPane, menuPane);
@@ -138,15 +125,13 @@ public class AdminView extends AnchorPane implements BaseView{
 		searchPane.setPadding(new Insets(20,230,0,200));
 		HBox.setHgrow(searchBar, Priority.ALWAYS);
 		
-		optionPane.getChildren().addAll(addNewClientButton, viewClientInfoButton, addNewServiceButton, viewServiceButton, registerServiceButton);
+		optionPane.getChildren().addAll(addNewClientButton, viewClientInfoButton, registerServiceButton);
 		optionPane.setAlignment(Pos.CENTER);
 		
 		
 		HBox.setHgrow(addNewClientButton, Priority.ALWAYS);
 		HBox.setHgrow(viewClientInfoButton, Priority.ALWAYS);
 		HBox.setHgrow(registerServiceButton, Priority.ALWAYS);
-		HBox.setHgrow(addNewServiceButton, Priority.ALWAYS);
-		HBox.setHgrow(exportAllDataButton, Priority.ALWAYS);
 		
 		//Initialize gridpane
 		mainPane.add(searchPane, 0, 0);
@@ -179,7 +164,8 @@ public class AdminView extends AnchorPane implements BaseView{
 		
 		
 		 
-		sc.getStylesheets().add("file:///" + new File(DirectoryStructure.getMainDir() + "Client\\css\\bootstrap3.css").getAbsolutePath().replace("\\", "/"));
+		
+		sc.getStylesheets().add("file:///" + new File("C:\\ServiceTracking\\Client\\css\\bootstrap3.css").getAbsolutePath().replace("\\", "/"));
 		 
 		
 	}
@@ -212,14 +198,6 @@ public class AdminView extends AnchorPane implements BaseView{
 		
 		logOutLabel.setOnMouseClicked(logoutEvent);
 	}
-	//Create a new user functionality
-	public void createUserListener(EventHandler<ActionEvent> event) {
-		newUser.setOnAction(event);
-	}
-	//Update a user.
-	public void updateUserListener(EventHandler<ActionEvent> event) {
-		viewUser.setOnAction(event);
-	}
 	//create client functionality.
 	public void createClientListener(EventHandler<ActionEvent> event) {
 		addNewClientButton.setOnAction(event);
@@ -227,14 +205,6 @@ public class AdminView extends AnchorPane implements BaseView{
 	//View client
 	public void viewClientListener(EventHandler<ActionEvent> event) {
 		viewClientInfoButton.setOnAction(event);
-	}
-	//Create new service.
-	public void createServiceListener(EventHandler<ActionEvent> event) {
-		addNewServiceButton.setOnAction(event);
-	}
-	//view service
-	public void viewServiceListener(EventHandler<ActionEvent> event) {
-		viewServiceButton.setOnAction(event);
 	}
 	//Register service button
 	public void registerServiceListener(EventHandler<ActionEvent> event) {

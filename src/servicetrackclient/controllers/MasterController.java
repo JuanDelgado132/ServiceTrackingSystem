@@ -4,6 +4,7 @@ package servicetrackclient.controllers;
 
 import java.io.File;
 
+import javafx.application.Platform;
 import javafx.scene.image.Image;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -28,13 +29,16 @@ public final class MasterController {
 	//Controllers
 	private LogInController logIn;
 	private AdminController admin;
-	private UserController user;
+	private StaffController staff;
 	private CreateUserController createUser;
 	private CreateClientController createClient;
 	private ViewUserController viewUser;
 	private ClientInfoController clientInfo;
 	private CreateServiceController createService;
 	private RegisterServiceController register;
+	private ServiceInfoController serviceInfo;
+	private ExportDataController exportData;
+	private SetupController setup;
 	
 	//This will be the initial stage.
 	private static Stage primaryStage;
@@ -42,22 +46,27 @@ public final class MasterController {
 	//This stage will be used to open a second window.
 	private static Stage secondaryStage;
 	
-	//Prevent instantiation.
-	//Set up all controllers.
+	/**
+	 * Constructor for the MasterController initializes all objects.
+	 */
 	private MasterController() {
 		
 		logIn = new LogInController(new LogInModel(), new LogInView());
 		admin = new AdminController();
-		user = new UserController();
+		staff = new StaffController();
 		createUser = new CreateUserController();
 		createClient = new CreateClientController();
 		viewUser = new ViewUserController();
 		clientInfo = new ClientInfoController();
 		createService = new CreateServiceController();
 		register = new RegisterServiceController();
+		serviceInfo = new ServiceInfoController();
+		exportData = new ExportDataController();
+		setup = new SetupController();
 		secondaryStage = new Stage();
 		secondaryStage.setTitle("Good Neighbor");
 		secondaryStage.getIcons().add(new Image("file:///" + new File("C:\\ServiceTracking\\Client\\images\\good_neighbor.png").getAbsolutePath().replace("\\", "/")));
+		secondaryStage.setResizable(false);
 		secondaryStage.setOnCloseRequest(event ->{
 			secondaryStage.close();
 			setUpSecondStage();
@@ -83,51 +92,37 @@ public final class MasterController {
 	}
 	public void setUpPrimaryStage() {
 		primaryStage.setTitle("Good Neighbor");
-		primaryStage.getIcons().add(new Image("file:///" + new File("C:\\ServiceTracking\\Client\\images\\good_neighbor.png").getAbsolutePath().replace("\\", "/")));
-		
+		primaryStage.getIcons().add(new Image("file:///" + new File(DirectoryStructure.getMainDir() + DirectoryStructure.CLIENT_DIR + DirectoryStructure.CLIENT_IMAGES_DIR + "good_neighbor.png").getAbsolutePath().replace("\\", "/")));
+		primaryStage.setOnCloseRequest(event -> {
+			if(new File(DirectoryStructure.getLoggedInFile()).exists())
+				DirectoryStructure.deleteLoggedInFile();
+			//Platform.exit();
+	        //System.exit(0);
+		});
 	}
 	/**
 	 * Ensures that the second stage will remain tied to the main stage.
 	 * @author juand
 	 */
 	private void setUpSecondStage() {
+		clearAllViews();
 		secondaryStage.close();
 		secondaryStage = new Stage();
 		secondaryStage.setTitle("Good Neighbor");
-		secondaryStage.getIcons().add(new Image("file:///" + new File("C:\\ServiceTracking\\Client\\images\\good_neighbor.png").getAbsolutePath().replace("\\", "/")));
+		secondaryStage.getIcons().add(new Image("file:///" + new File(DirectoryStructure.getMainDir() + DirectoryStructure.CLIENT_DIR + DirectoryStructure.CLIENT_IMAGES_DIR + "good_neighbor.png").getAbsolutePath().replace("\\", "/")));
+		secondaryStage.setResizable(false);
 		if(new File(DirectoryStructure.getClientFile()).exists())
 			DirectoryStructure.deleteClientFile();
 		if (new File(DirectoryStructure.getUserFile()).exists())
 			DirectoryStructure.deleteUserFile();
 		if(new File(DirectoryStructure.getServiceFile()).exists())
 			DirectoryStructure.deleteServiceFile();
+		
 		secondaryStage.setOnCloseRequest(event ->{
-			secondaryStage.close();
+			//secondaryStage.close();
 			setUpSecondStage();
 		});
 	}
-	public void startLogIn() {
-		primaryStage.setScene(logIn.getViewScene());
-		primaryStage.setTitle("Good Neighbor");
-		primaryStage.getIcons().add(new Image("file:///" + new File("C:\\ServiceTracking\\Client\\images\\good_neighbor.png").getAbsolutePath().replace("\\", "/")));
-		primaryStage.setResizable(false);
-		primaryStage.show();
-		
-	}
-	
-	public void showAdmin() {
-		primaryStage.setScene(admin.getViewScene());
-		primaryStage.setTitle("Good Neighbor");
-		primaryStage.getIcons().add(new Image("file:///" + new File("C:\\ServiceTracking\\Client\\images\\good_neighbor.png").getAbsolutePath().replace("\\", "/")));
-		primaryStage.show();
-	}
-	public void showUser() {
-		primaryStage.setScene(user.getViewScene());
-		primaryStage.setTitle("Good Neighbor");
-		primaryStage.getIcons().add(new Image("file:///" + new File("C:\\ServiceTracking\\Client\\images\\good_neighbor.png").getAbsolutePath().replace("\\", "/")));
-		primaryStage.show();
-	}
-	
 	private void showMainView(BaseController main) {
 		primaryStage.setScene(main.getViewScene());
 		if(main instanceof LogInController)
@@ -151,14 +146,34 @@ public final class MasterController {
 	public void setupAllViews() {
 		logIn.setupView();
 		admin.setupView();
-		user.setupView();
+		staff.setupView();
 		createUser.setupView();
 		createClient.setupView();
 		viewUser.setupView();
 		clientInfo.setupView();
 		createService.setupView();
 		register.setupView();
+		serviceInfo.setupView();
+		exportData.setupView();
+		setup.setupView();
 	}
+	public void clearAllViews() {
+		logIn.clearTheView();
+		admin.clearTheView();
+		staff.clearTheView();
+		createUser.clearTheView();
+		createClient.clearTheView();
+		viewUser.clearTheView();
+		clientInfo.clearTheView();
+		createService.clearTheView();
+		register.clearTheView();
+		serviceInfo.clearTheView();
+	}
+	/**
+	 * The main part of master controller class.
+	 * Here is where each event is fired when a controller needs to open another view.
+	 * @param event
+	 */
 	public void fireEvent(String event) {
 		
 		switch (event) {
@@ -169,7 +184,7 @@ public final class MasterController {
 			break;
 		case "U":
 			primaryStage.close();
-			showMainView(user);
+			showMainView(staff);
 			break;
 		case "O":
 			primaryStage.close();
@@ -203,7 +218,25 @@ public final class MasterController {
 			register.setViewInfo();
 			showSecondaryView(register);
 			break;
-			
+		//View requested service event.
+		case "VS":
+			serviceInfo.setUpServiceInfo();
+			showSecondaryView(serviceInfo);
+			break;
+		//Export data view.
+		case "ED":
+			showSecondaryView(exportData);
+			break;
+		//Close the app;
+		case "CP":
+			primaryStage.close();
+			Platform.exit();
+	        System.exit(0);
+	        break;
+	    //Setup view
+		case "SU":
+			primaryStage.close();
+			showMainView(setup);
 		}
 		
 	}

@@ -1,6 +1,9 @@
 package servicetrackclient.clientviews;
 
 import java.io.File;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.HPos;
@@ -9,6 +12,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextArea;
@@ -17,9 +21,13 @@ import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.util.StringConverter;
+import servicetrackdirectories.DirectoryStructure;
 
 public class CreateClientView extends AnchorPane implements BaseView{
 	private Label firstName;
@@ -31,7 +39,7 @@ public class CreateClientView extends AnchorPane implements BaseView{
 	
 	private TextField firstNameField;
 	private TextField lastNameField;
-	private TextField birthDayField;
+	private DatePicker birthDayField; 
 	private TextArea commentField;
 	
 	private ToggleGroup genderToggle;
@@ -43,8 +51,10 @@ public class CreateClientView extends AnchorPane implements BaseView{
 	private GridPane enterClientInfoPane;
 	private BorderPane mainScreen;
 	private HBox genderPane;
+	private FlowPane buttonPane;
 	
 	private Button addClientButton;
+	private Button closeButton;
 	
 	private Scene scene;
 	@Override
@@ -52,18 +62,51 @@ public class CreateClientView extends AnchorPane implements BaseView{
 		firstName = new Label("First Name: ");
 		lastName = new Label("Last Name: ");
 		gender = new Label("Gender: ");
-		birthDay = new Label("Enter Birth Day(yyyy-mm-dd): ");
+		birthDay = new Label("Enter Birth Day: ");
 		comments = new Label("Comments");
 		title = new Label("Please Fill Out The Information Below To Add a New Client");
 		
 		firstNameField = new TextField();
 		lastNameField = new TextField();
 		
-		birthDayField = new TextField();
+		birthDayField = new DatePicker();
+		birthDayField.setConverter(new StringConverter<LocalDate>(){
+			String pattern = "yyyy-MM-dd";
+		     DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern(pattern);
+
+		     {
+		    	 birthDayField.setPromptText(pattern.toLowerCase());
+		     }
+
+		     @Override 
+		     public String toString(LocalDate date) {
+		         if (date != null) {
+		             return dateFormatter.format(date);
+		         } else {
+		             return "";
+		         }
+		     }
+
+		     @Override 
+		     public LocalDate fromString(String string) {
+		         if (string != null && !string.isEmpty()) {
+		             return LocalDate.parse(string, dateFormatter);
+		         } else {
+		             return null;
+		         }
+		     }
+		});
 		commentField = new TextArea();
 		
 		
 		addClientButton = new Button("Create Client");
+		closeButton = new Button("Close Window");
+		buttonPane = new FlowPane();
+		buttonPane.setHgap(10.0);
+		buttonPane.setVgap(10.0);
+		buttonPane.setPadding(new Insets(10,10,10,10));
+		buttonPane.getChildren().addAll(addClientButton, closeButton);
+		buttonPane.setAlignment(Pos.BASELINE_RIGHT);
 		
 		genderToggle = new ToggleGroup();
 		male = new RadioButton("Male");
@@ -74,6 +117,9 @@ public class CreateClientView extends AnchorPane implements BaseView{
 		genderPane = new HBox(10);
 		genderPane.getChildren().addAll(male, female);
 		
+		dialog = new Alert(AlertType.NONE);
+		dialog.setTitle("Good Neighbor Alert");
+		dialog.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
 		
 		enterClientInfoPane = new GridPane();
 		enterClientInfoPane.setPadding(new Insets(10.0, 10.0, 10.0, 10.0));
@@ -90,7 +136,7 @@ public class CreateClientView extends AnchorPane implements BaseView{
 		enterClientInfoPane.add(genderPane, 1, 2);
 		enterClientInfoPane.add(birthDayField, 1, 3);
 		enterClientInfoPane.add(commentField, 1, 5);
-		enterClientInfoPane.add(addClientButton, 1, 6);
+		enterClientInfoPane.add(buttonPane, 1, 6);
 		
 		GridPane.setHgrow(firstNameField, Priority.ALWAYS);
 		GridPane.setHgrow(lastNameField, Priority.ALWAYS);
@@ -116,8 +162,7 @@ public class CreateClientView extends AnchorPane implements BaseView{
 		AnchorPane.setLeftAnchor(mainScreen, 0.0);
 		
 		scene = new Scene(this, 700, 420);
-		scene.getStylesheets().add("file:///" + new File("C:\\ServiceTracking\\Client\\css\\bootstrap3.css").getAbsolutePath().replace("\\", "/"));
-		
+		scene.getStylesheets().add("file:///" + new File(DirectoryStructure.getMainDir() + "Client\\css\\bootstrap3.css").getAbsolutePath().replace("\\", "/"));		
 	}
 	
 	public String getFirstName() {
@@ -129,7 +174,7 @@ public class CreateClientView extends AnchorPane implements BaseView{
 	}
 	
 	public String getBirthDay() {
-		return birthDayField.getText();
+		return birthDayField.getConverter().toString(birthDayField.getValue());
 	}
 	
 	public String getGender() {
@@ -158,17 +203,16 @@ public class CreateClientView extends AnchorPane implements BaseView{
 		lastNameField.clear();
 		male.setSelected(false);
 		female.setSelected(false);
-		birthDayField.clear();
+		birthDayField.setValue(null);
 		commentField.clear();
 		
 	}
 	public void showDialog(int code, String message) {
 		if (code == -1)
-			dialog = new Alert(AlertType.ERROR);
+			dialog.setAlertType(AlertType.ERROR);
 		else
-			dialog = new Alert(AlertType.INFORMATION);
+			dialog.setAlertType(AlertType.INFORMATION);
 		
-		dialog.setTitle("Good Neighbor Alert");
 		dialog.setContentText(message);
 		dialog.showAndWait();
 	}
@@ -176,6 +220,9 @@ public class CreateClientView extends AnchorPane implements BaseView{
 		
 		addClientButton.setOnAction(event);
 		
+	}
+	public void closeButtonListener(EventHandler<ActionEvent> event) {
+		closeButton.setOnAction(event);
 	}
 
 }

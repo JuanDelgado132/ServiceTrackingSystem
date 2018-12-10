@@ -38,7 +38,6 @@ public class CreateServiceController implements BaseController{
 			createServiceView.clearView();
 		});
 		createServiceView.addCloseListener(event ->{
-			createServiceView.clearView();
 			MasterController.getMaster().fireEvent("C");
 		});
 		
@@ -47,6 +46,12 @@ public class CreateServiceController implements BaseController{
 	@Override
 	public Scene getViewScene() {
 		return createServiceView.getScene();
+	}
+
+	@Override
+	public void clearTheView() {
+		createServiceView.clearView();
+		
 	}
 
 }

@@ -1,7 +1,9 @@
 package servicetrackclient.clientviews;
 
 import java.io.File;
-
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.HPos;
@@ -10,6 +12,8 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextArea;
@@ -21,7 +25,11 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.stage.FileChooser;
+import javafx.util.StringConverter;
+import servicetrackdata.Service;
+import servicetrackdirectories.DirectoryStructure;
 
 public class ClientInfoView extends AnchorPane implements BaseView{
 	private Label firstName;
@@ -32,17 +40,20 @@ public class ClientInfoView extends AnchorPane implements BaseView{
 	private Label id;
 	private Label age;
 	private Label title;
+	private Label userService;
 	
 	private TextField firstNameField;
 	private TextField lastNameField;
 	private TextField ageField;
-	private TextField birthDayField;
+	private DatePicker birthDayField;
 	private TextField idField;
 	private TextArea commentField;
 	
 	private ToggleGroup genderToggle;
 	private RadioButton male;
 	private RadioButton female;
+	
+	private ComboBox<Service> services;
 	
     private Alert dialog;
 	
@@ -55,6 +66,7 @@ public class ClientInfoView extends AnchorPane implements BaseView{
 	private Button deleteClientButton;
 	private Button generateBarcodeButton;
 	private Button closeButton;
+	private Button useServiceButton;
 	
 	private FileChooser barcodeFileChooser;
 	
@@ -69,6 +81,7 @@ public class ClientInfoView extends AnchorPane implements BaseView{
 		comments = new Label("Comments");
 		id = new Label("ID: ");
 		title = new Label("Please Fill Out The Information Below To Add a New Client");
+		userService = new Label("Select the service to use.");
 		
 		firstNameField = new TextField();
 		lastNameField = new TextField();
@@ -77,13 +90,40 @@ public class ClientInfoView extends AnchorPane implements BaseView{
 		idField = new TextField();
 		idField.setEditable(false);
 		
-		birthDayField = new TextField();
+		birthDayField = new DatePicker();
+		birthDayField.setConverter(new StringConverter<LocalDate>(){
+			String pattern = "yyyy-MM-dd";
+		     DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern(pattern);
+
+		     {
+		    	 birthDayField.setPromptText(pattern.toLowerCase());
+		     }
+
+		     @Override 
+		     public String toString(LocalDate date) {
+		         if (date != null) {
+		             return dateFormatter.format(date);
+		         } else {
+		             return "";
+		         }
+		     }
+
+		     @Override 
+		     public LocalDate fromString(String string) {
+		         if (string != null && !string.isEmpty()) {
+		             return LocalDate.parse(string, dateFormatter);
+		         } else {
+		             return null;
+		         }
+		     }
+		});
 		commentField = new TextArea();
 		
 		
 		updateClientButton = new Button("Update Client");
 		deleteClientButton = new Button("Delete This Client");
 		generateBarcodeButton = new Button("Generate Client Barcode");
+		useServiceButton = new Button("Use Selected Service");
 		closeButton = new Button("Close Window");
 		
 		genderToggle = new ToggleGroup();
@@ -92,14 +132,20 @@ public class ClientInfoView extends AnchorPane implements BaseView{
 		male.setToggleGroup(genderToggle);
 		female.setToggleGroup(genderToggle);
 		
+		services = new ComboBox<>();
+		services.setMaxHeight(300);
+		services.setPlaceholder(new Label("Select a Service to Use"));
+		services.setPadding(new Insets(10, 10, 10, 10));
+		
 		genderPane = new HBox(10);
 		genderPane.getChildren().addAll(male, female);
 		
 		controlPane = new HBox(10);
-		controlPane.getChildren().addAll(generateBarcodeButton, updateClientButton, deleteClientButton, closeButton);
+		controlPane.getChildren().addAll(generateBarcodeButton, useServiceButton, updateClientButton, deleteClientButton, closeButton);
 		controlPane.setAlignment(Pos.BASELINE_RIGHT);
 		
 		dialog = new Alert(AlertType.NONE);
+		dialog.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
 		dialog.setTitle("Good Neighbor Alert");
 		
 		barcodeFileChooser = new FileChooser();
@@ -117,7 +163,8 @@ public class ClientInfoView extends AnchorPane implements BaseView{
 		enterClientInfoPane.add(gender, 0, 3);
 		enterClientInfoPane.add(age, 0, 4);
 		enterClientInfoPane.add(birthDay, 0, 5);
-		enterClientInfoPane.add(comments, 1, 6);
+		enterClientInfoPane.add(userService, 0, 6);
+		enterClientInfoPane.add(comments, 1, 7);
 		
 		enterClientInfoPane.add(firstNameField, 1, 0);
 		enterClientInfoPane.add(lastNameField, 1, 1);
@@ -125,13 +172,14 @@ public class ClientInfoView extends AnchorPane implements BaseView{
 		enterClientInfoPane.add(genderPane, 1, 3);
 		enterClientInfoPane.add(ageField, 1, 4);
 		enterClientInfoPane.add(birthDayField, 1, 5);
-		enterClientInfoPane.add(commentField, 1, 7);
-		enterClientInfoPane.add(controlPane, 1, 8);
+		enterClientInfoPane.add(services, 1, 6);
+		enterClientInfoPane.add(commentField, 1, 8);
+		enterClientInfoPane.add(controlPane, 1, 9);
 		
-		GridPane.setHgrow(firstNameField, Priority.ALWAYS);
-		GridPane.setHgrow(lastNameField, Priority.ALWAYS);
+		GridPane.setHgrow(firstNameField, Priority.SOMETIMES);
+		GridPane.setHgrow(lastNameField, Priority.SOMETIMES);
 		//GridPane.setHgrow(genderField, Priority.ALWAYS);
-		GridPane.setHgrow(birthDayField, Priority.ALWAYS);
+		GridPane.setHgrow(birthDayField, Priority.SOMETIMES);
 		GridPane.setHalignment(comments, HPos.CENTER);
 		GridPane.setHalignment(commentField, HPos.LEFT);
 		GridPane.setHalignment(controlPane, HPos.RIGHT);
@@ -151,9 +199,9 @@ public class ClientInfoView extends AnchorPane implements BaseView{
 		AnchorPane.setRightAnchor(mainScreen, 0.0);
 		AnchorPane.setLeftAnchor(mainScreen, 0.0);
 		
-		scene = new Scene(this, 780, 400);
-		scene.getStylesheets().add("file:///" + new File("C:\\ServiceTracking\\Client\\css\\bootstrap3.css").getAbsolutePath().replace("\\", "/"));
+		scene = new Scene(this, 960, 600);
 		
+		scene.getStylesheets().add("file:///" + new File(DirectoryStructure.getMainDir() + "Client\\css\\bootstrap3.css").getAbsolutePath().replace("\\", "/"));
 	}
 	
 	public String getFirstName() {
@@ -165,7 +213,7 @@ public class ClientInfoView extends AnchorPane implements BaseView{
 	}
 	
 	public String getBirthDay() {
-		return birthDayField.getText();
+		return birthDayField.getConverter().toString(birthDayField.getValue());
 	}
 	public int getID() {
 		return Integer.parseInt(idField.getText());
@@ -182,6 +230,10 @@ public class ClientInfoView extends AnchorPane implements BaseView{
 	public String getComments() {
 		return commentField.getText();
 	}
+	public Service getSelectedService() {
+		//services.getSele
+		return services.getValue();
+	}
 	public void setFirstName(String firstName) {
 		firstNameField.setText(firstName);
 	}
@@ -192,7 +244,7 @@ public class ClientInfoView extends AnchorPane implements BaseView{
 		ageField.setText(age);
 	}
 	public void setBirthday(String birthDay) {
-		birthDayField.setText(birthDay);
+		birthDayField.setValue(LocalDate.parse(birthDay));
 	}
 	public void setIDField(String id) {
 		idField.setText(id);
@@ -205,6 +257,18 @@ public class ClientInfoView extends AnchorPane implements BaseView{
 	}
 	public void setComments(String comments) {
 		commentField.setText(comments);
+	}
+	public void setRegisteredService(HashMap<Integer, Service> services) {
+		if(services == null) {
+			//If no services are registered yet then the combo box is disabled..
+			this.services.setDisable(true);
+			//Disable the use service button.
+			useServiceButton.setDisable(true);
+			//No services are available to user, so the method exits.
+			return;
+		}
+		//ArrayList<Service> registeredServices = new ArrayList<>(services.values());
+		this.services.getItems().addAll(services.values());
 	}
 	@Override
 	public Scene getViewScene() {
@@ -221,9 +285,14 @@ public class ClientInfoView extends AnchorPane implements BaseView{
 		male.setSelected(false);
 		female.setSelected(false);
 		ageField.clear();
-		birthDayField.clear();
+		birthDayField.setValue(null);
 		commentField.clear();
 		dialog.setAlertType(AlertType.NONE);
+		
+		services.getItems().clear();
+		services.setDisable(false);
+		useServiceButton.setDisable(false);
+		
 		
 	}
 	public void showDialog(int code, String message) {
@@ -256,6 +325,9 @@ public class ClientInfoView extends AnchorPane implements BaseView{
 	}
 	public void addCloseWindowListener(EventHandler<ActionEvent> event) {
 		closeButton.setOnAction(event);
+	}
+	public void addUserServiceListener(EventHandler<ActionEvent> event) {
+		useServiceButton.setOnAction(event);
 	}
 
 }

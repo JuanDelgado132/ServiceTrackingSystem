@@ -16,16 +16,18 @@ import java.util.logging.Logger;
  */
 public final class DirectoryStructure {
     
-    private static final String MAIN_DIR = "C:\\ServiceTracking\\";
-    private static final String SETTINGS_DIR = "settings\\";
-    private static final String LOG_FILE_DIR = "logs\\";
-    private static final String CONFIG_FILE = "config.properties";
-    private static final String LOG = "log.txt";
-    private static final String CLIENT_DIR = "Client\\";
-    private static final String LOGGED_IN_USER_FILE = "LoggedInUser.data";
-    private static final String USER_FILE = "user.data";
-    private static final String CLIENT_FILE = "client.data";
-    private static final String SERVICE_FILE = "service.data";
+    private static  String MAIN_DIR;
+    public static final String SETTINGS_DIR = "settings\\";
+    public static final String LOG_FILE_DIR = "logs\\";
+    public static final String CONFIG_FILE = "config.properties";
+    public static final String LOG = "log.txt";
+    public static final String CLIENT_DIR = "Client\\";
+    public static final String CLIENT_CSS_DIR = "css\\";
+    public static final String CLIENT_IMAGES_DIR = "images\\";
+    public static final String LOGGED_IN_USER_FILE = "LoggedInUser.data";
+    public static final String USER_FILE = "user.data";
+    public static final String CLIENT_FILE = "client.data";
+    public static final String SERVICE_FILE = "service.data";
     //private static final 
     private DirectoryStructure(){
         
@@ -118,9 +120,15 @@ public final class DirectoryStructure {
     	File userFile = new File(MAIN_DIR + CLIENT_DIR + SERVICE_FILE);
     	userFile.delete();
     }
-
-
-    
+    public static void createClientDirs() {
+    	File file = new File(MAIN_DIR + CLIENT_DIR + CLIENT_CSS_DIR);
+    	file.mkdirs();
+    	file = new File(MAIN_DIR + CLIENT_DIR + CLIENT_IMAGES_DIR);
+    	file.mkdirs();
+    }
+    public static void setMainDir(String mainDir) {
+    	MAIN_DIR = mainDir;
+    }
     public static String getMainDir(){
         return MAIN_DIR;
     }
