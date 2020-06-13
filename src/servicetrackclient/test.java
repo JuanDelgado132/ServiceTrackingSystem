@@ -15,7 +15,7 @@ public class test {
 		//User user = new User("John", "Doe", 1111111, "john@gmail.com", "staff", "#PIE%^&?", "E Street", "(956) 544-4600");
 		User user = new User();
 		user.setEmail("jdelgado5443@gmail.com");
-		user.setPassword("Skyl@r5106");
+		user.setPassword("poop");
 		ServiceTrackProtocol p = new ServiceTrackProtocol();
 		p.setActionCode("LG");
 		p.setPerson(user);
